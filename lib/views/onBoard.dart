@@ -97,7 +97,7 @@ class OnboardingScreen extends StatelessWidget {
           Spacer(),
           ElevatedButton(
             style: ElevatedButton.styleFrom(
-              backgroundColor: Color(0xFFFF5722),
+              backgroundColor: Color(0xFF273671),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(20),
               ),

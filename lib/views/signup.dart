@@ -1,154 +1,228 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:resturant_app/views/bottomnav.dart';
 import 'package:resturant_app/views/login.dart';
-import 'package:resturant_app/widgets/textwidget.dart';
 
 class SignUp extends StatefulWidget {
   const SignUp({super.key});
+
   @override
   State<SignUp> createState() => _SignUpState();
 }
 
 class _SignUpState extends State<SignUp> {
+  String email = "";
+  String password = "";
+  String name = "";
+  bool _isObscure = true;
+
+  TextEditingController emailController = TextEditingController();
+  TextEditingController passwordController = TextEditingController();
+  TextEditingController nameController = TextEditingController();
+
+  final formKey = GlobalKey<FormState>();
+
+  registertion() async {
+    if (password.isNotEmpty) {
+      try {
+        UserCredential userCredential = await FirebaseAuth.instance
+            .createUserWithEmailAndPassword(email: email, password: password);
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          backgroundColor: Colors.green,
+          content: Text(
+            "Registered Successfully",
+            style: TextStyle(fontSize: 20, color: Colors.white),
+          ),
+        ));
+        Navigator.pushReplacement(
+            context, MaterialPageRoute(builder: (context) => BottomNav()));
+      } on FirebaseException catch (e) {
+        if (e.code == "weak-password") {
+          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+            backgroundColor: Colors.red,
+            content: Text(
+              "Password is too weak",
+              style: TextStyle(fontSize: 18, color: Colors.white),
+            ),
+          ));
+        } else if (e.code == "email-already-in-use") {
+          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+            backgroundColor: Colors.red,
+            content: Text(
+              "Account Already exists",
+              style: TextStyle(fontSize: 18, color: Colors.white),
+            ),
+          ));
+        }
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    // TODO: implement build
-    return Scaffold(
-      body: Container(
-        child: Stack(
-          children: [
-            Container(
-              height: MediaQuery.of(context).size.height / 2.5,
-              width: MediaQuery.of(context).size.width,
-              decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomLeft,
-                      colors: [Color(0xFFff5c30), Color(0xFFe74b1a)])),
-            ),
-            Container(
-              margin:
-                  EdgeInsets.only(top: MediaQuery.of(context).size.height / 3),
-              height: MediaQuery.of(context).size.height / 2,
-              width: MediaQuery.of(context).size.width,
-              decoration: const BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.only(
-                      topLeft: Radius.circular(40),
-                      topRight: Radius.circular(40))),
-            ),
-            Container(
-              margin: EdgeInsets.only(top: 60, left: 20, right: 20),
+    return SafeArea(
+      child: Scaffold(
+        resizeToAvoidBottomInset:
+            true, // Automatically adjusts for the keyboard
+        body: SingleChildScrollView(
+          child: Padding(
+            padding:
+                const EdgeInsets.symmetric(horizontal: 16.0, vertical: 30.0),
+            child: Form(
+              key: formKey,
               child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  Center(
-                    child: Image.asset(
-                      "images/logo.jpg",
-                      width: MediaQuery.of(context).size.width / 2.5,
-                      fit: BoxFit.cover,
+                  SizedBox(height: 20),
+                  /* Image.asset(
+                    'images/logo.jpg',
+                    height: 120,
+                    fit: BoxFit.contain,
+                  ),*/
+                  const SizedBox(height: 20),
+                  const Text(
+                    'Create your account',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black,
                     ),
                   ),
-                  SizedBox(height: 50),
-                  Material(
-                    borderRadius: BorderRadius.circular(20),
-                    elevation: 2,
-                    child: Container(
-                        padding: EdgeInsets.symmetric(horizontal: 20),
-                        width: MediaQuery.of(context).size.width,
-                        height: MediaQuery.of(context).size.height / 1.8,
-                        decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(20),
-                            color: Colors.white),
-                        child: Column(
-                          children: [
-                            SizedBox(
-                              height: 30,
-                            ),
-                            Text("Sign up",
-                                style: TextWidget.HeadLineTextFieldStyle()),
-                            SizedBox(
-                              height: 30,
-                            ),
-                            TextField(
-                              decoration: InputDecoration(
-                                  hintText: "Name",
-                                  hintStyle:
-                                      TextWidget.semiBoldTextFieldStyle(),
-                                  prefixIcon: Icon(Icons.person_2_outlined)),
-                            ),
-                            SizedBox(
-                              height: 30,
-                            ),
-                            TextField(
-                              decoration: InputDecoration(
-                                  hintText: "Email",
-                                  hintStyle:
-                                      TextWidget.semiBoldTextFieldStyle(),
-                                  prefixIcon: Icon(Icons.email_outlined)),
-                            ),
-                            SizedBox(
-                              height: 30,
-                            ),
-                            TextField(
-                              obscureText: true,
-                              decoration: InputDecoration(
-                                  hintText: "Password",
-                                  hintStyle:
-                                      TextWidget.semiBoldTextFieldStyle(),
-                                  prefixIcon: Icon(Icons.password_outlined)),
-                            ),
-                            const SizedBox(
-                              height: 40,
-                            ),
-                            Container(
-                                padding: EdgeInsets.symmetric(vertical: 8),
-                                width: 200,
-                                decoration: BoxDecoration(
-                                    color: Color(0xffff5722),
-                                    borderRadius: BorderRadius.circular(20)),
-                                child: const Center(
-                                  child: Text(
-                                    "SignUp",
-                                    style: TextStyle(
-                                        color: Colors.white,
-                                        fontSize: 18,
-                                        fontWeight: FontWeight.bold),
-                                  ),
-                                ))
-                          ],
-                        )),
+                  const SizedBox(height: 30),
+                  TextFormField(
+                    controller: nameController,
+                    decoration: InputDecoration(
+                      labelText: 'Username',
+                      prefixIcon: Icon(
+                        Icons.person,
+                      ),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                    ),
+                    onChanged: (value) => name = value,
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Please enter your username';
+                      }
+                      return null;
+                    },
                   ),
-                  SizedBox(height: 70),
-                  RichText(
-                    text: TextSpan(
-                      text: "Already have an account? ",
-                      style: const TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.black),
-                      children: [
-                        TextSpan(
-                          text: "Login",
-                          style: const TextStyle(
-                              color: Color(0xffff5722),
-                              fontWeight: FontWeight.bold),
-                          recognizer: TapGestureRecognizer()
-                            ..onTap = () {
-                              // Navigate to the Login page
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) => const Login()),
-                              );
-                            },
+                  const SizedBox(height: 20),
+                  TextFormField(
+                    controller: emailController,
+                    decoration: InputDecoration(
+                      labelText: 'Email',
+                      prefixIcon: Icon(
+                        Icons.email,
+                      ),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                    ),
+                    keyboardType: TextInputType.emailAddress,
+                    onChanged: (value) => email = value,
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Please enter your email';
+                      }
+                      if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(value)) {
+                        return 'Please enter a valid email';
+                      }
+                      return null;
+                    },
+                  ),
+                  const SizedBox(height: 20),
+                  TextFormField(
+                    controller: passwordController,
+                    obscureText: _isObscure,
+                    decoration: InputDecoration(
+                      labelText: 'Password',
+                      prefixIcon: Icon(
+                        Icons.lock,
+                      ),
+                      suffixIcon: IconButton(
+                        icon: Icon(
+                          _isObscure ? Icons.visibility : Icons.visibility_off,
                         ),
-                      ],
+                        onPressed: () {
+                          setState(() {
+                            _isObscure = !_isObscure;
+                          });
+                        },
+                      ),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                    ),
+                    onChanged: (value) => password = value,
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Please enter your password';
+                      }
+                      if (value.length < 6) {
+                        return 'Password must be at least 6 characters';
+                      }
+                      return null;
+                    },
+                  ),
+                  const SizedBox(height: 30),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                    child: ElevatedButton(
+                      onPressed: () {
+                        if (formKey.currentState!.validate()) {
+                          registertion();
+                        }
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Color(0xffff5722),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(24),
+                        ),
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                      ),
+                      child: const Text(
+                        'Sign Up',
+                        style: TextStyle(fontSize: 18, color: Colors.white),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 30),
+                  Center(
+                    child: RichText(
+                      text: TextSpan(
+                        text: 'Already have an account? ',
+                        style: const TextStyle(
+                            color: Colors.black,
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold),
+                        children: [
+                          TextSpan(
+                            text: 'Login',
+                            style: const TextStyle(
+                                color: Color(0xffff5722),
+                                fontWeight: FontWeight.bold,
+                                fontSize: 16),
+                            recognizer: TapGestureRecognizer()
+                              ..onTap = () {
+                                Navigator.pushReplacement(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (context) => Login()));
+                              },
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 ],
               ),
-            )
-          ],
+            ),
+          ),
         ),
       ),
     );

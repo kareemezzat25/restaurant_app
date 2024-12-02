@@ -12,7 +12,20 @@
           "package_name": "com.example.resturant_app"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "1007820577617-2vdg1378dc174r0g0hvoc3vq4c9le7bu.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.resturant_app",
+            "certificate_hash": "55a0375fb13450a06b1debd2f1f3e18f4a8e8556"
+          }
+        },
+        {
+          "client_id": "1007820577617-qoi5icl8dc0jphjrcs5c2q3qp06h5q6g.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyDXlAFkCSMxyIaOzw90XMxA1jQ3_h5IU0E"
@@ -20,7 +33,19 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1007820577617-qoi5icl8dc0jphjrcs5c2q3qp06h5q6g.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "1007820577617-dgv74a624fgjf2g0t6ni1qfqah82o21l.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.resturantApp"
+              }
+            }
+          ]
         }
       }
     }
