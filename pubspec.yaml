@@ -40,6 +40,11 @@ dependencies:
   firebase_auth: ^5.3.3
   google_sign_in: ^6.2.2
   cloud_firestore: 5.5.0
+  image_picker: ^1.1.2
+  supabase_flutter: ^2.8.1
+  shared_preferences: ^2.3.3
+  supabase: 2.6.0
+
 
 
 dev_dependencies:

@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:resturant_app/service/auth.dart';
 import 'package:resturant_app/views/bottomnav.dart';
 import 'package:resturant_app/views/login.dart';
 
@@ -20,6 +21,7 @@ class _SignUpState extends State<SignUp> {
   TextEditingController emailController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
   TextEditingController nameController = TextEditingController();
+  final AuthService _authService = AuthService();
 
   final formKey = GlobalKey<FormState>();
 
@@ -68,7 +70,7 @@ class _SignUpState extends State<SignUp> {
         body: SingleChildScrollView(
           child: Padding(
             padding:
-                const EdgeInsets.symmetric(horizontal: 16.0, vertical: 30.0),
+                const EdgeInsets.symmetric(horizontal: 16.0, vertical: 100.0),
             child: Form(
               key: formKey,
               child: Column(
@@ -76,17 +78,12 @@ class _SignUpState extends State<SignUp> {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   SizedBox(height: 20),
-                  /* Image.asset(
-                    'images/logo.jpg',
-                    height: 120,
-                    fit: BoxFit.contain,
-                  ),*/
                   const SizedBox(height: 20),
                   const Text(
                     'Create your account',
                     textAlign: TextAlign.center,
                     style: TextStyle(
-                      fontSize: 16,
+                      fontSize: 18,
                       fontWeight: FontWeight.bold,
                       color: Colors.black,
                     ),
@@ -179,7 +176,7 @@ class _SignUpState extends State<SignUp> {
                         }
                       },
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Color(0xffff5722),
+                        backgroundColor: Color(0xFF273671),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(24),
                         ),
@@ -192,6 +189,44 @@ class _SignUpState extends State<SignUp> {
                     ),
                   ),
                   const SizedBox(height: 30),
+                  Container(
+                    margin: EdgeInsets.symmetric(horizontal: 40),
+                    decoration: BoxDecoration(
+                        color: Colors.white70,
+                        borderRadius: BorderRadius.circular(12)),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Image.asset(
+                          height: 45,
+                          width: 45,
+                          "images/google_logo.png", // Replace with the correct path
+                          fit: BoxFit.contain,
+                        ),
+                        const SizedBox(
+                            width: 10), // Space between image and text
+                        GestureDetector(
+                          onTap: () async {
+                            await _authService.signInWithGoogle(context);
+                            Navigator.pushReplacement(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => BottomNav()),
+                            );
+                          },
+                          child: const Text(
+                            'Sign In with Google',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  SizedBox(height: 40),
                   Center(
                     child: RichText(
                       text: TextSpan(
@@ -204,7 +239,7 @@ class _SignUpState extends State<SignUp> {
                           TextSpan(
                             text: 'Login',
                             style: const TextStyle(
-                                color: Color(0xffff5722),
+                                color: Color(0xFF273671),
                                 fontWeight: FontWeight.bold,
                                 fontSize: 16),
                             recognizer: TapGestureRecognizer()

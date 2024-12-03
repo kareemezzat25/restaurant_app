@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:resturant_app/admin/homeAdmin.dart';
-import 'package:resturant_app/views/bottomnav.dart';
 
 class AdminLogin extends StatefulWidget {
   const AdminLogin({Key? key}) : super(key: key);
@@ -16,27 +15,34 @@ class _AdminLoginState extends State<AdminLogin> {
   TextEditingController passwordController = TextEditingController();
   bool _isObscure = true;
 
+  // Example of authenticating admin using Supabase auth
   Future<void> loginAdmin() async {
-    FirebaseFirestore.instance.collection("Admin").get().then((snapshot) {
-      for (var result in snapshot.docs) {
-        final username = result.data()['username'];
-        final password = result.data()['password'];
-
-        if (username != usernameController.text.trim()) {
-          _showSnackBar("Your username is not correct");
-        } else if (password != passwordController.text.trim()) {
-          _showSnackBar("Your password is not correct");
-        } else {
-          Navigator.pushReplacement(
-              context, MaterialPageRoute(builder: (context) => HomeAdmin()));
-        }
+    final supabase = Supabase.instance.client;
+    try {
+      // code error in this
+      final response = await supabase.auth.signInWithPassword(
+        email: usernameController.text.trim(), // Use email for admin login
+        password: passwordController.text.trim(),
+      );
+      print("Resonse: $response");
+      if (response == null) {
+        _showSnackBar("Username or Password is incorrect.");
+        return;
       }
-    });
+
+      // Navigate to HomeAdmin if login is successful
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => HomeAdmin()),
+      );
+    } catch (e) {
+      _showSnackBar("An error occurred: $e");
+    }
   }
 
   void _showSnackBar(String message) {
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-      backgroundColor: Colors.orangeAccent,
+      backgroundColor: Colors.red,
       content: Text(
         message,
         style: const TextStyle(fontSize: 18.0),
@@ -106,7 +112,6 @@ class _AdminLoginState extends State<AdminLogin> {
                     if (value == null || value.isEmpty) {
                       return 'Please enter your password';
                     }
-
                     return null;
                   },
                 ),

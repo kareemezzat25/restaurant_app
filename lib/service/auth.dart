@@ -1,48 +1,40 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:google_sign_in/google_sign_in.dart';
-import 'package:resturant_app/service/database.dart';
-import 'package:resturant_app/views/signup.dart';
 
-class AuthMethods {
-  final FirebaseAuth auth = FirebaseAuth.instance;
+class AuthService {
+  // Method for signing in with Google
+  Future<void> signInWithGoogle(context) async {
+    try {
+      final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
+      final GoogleSignInAuthentication? googleAuth =
+          await googleUser?.authentication;
 
-  getCurrentUser() async {
-    return await auth.currentUser;
-  }
+      final credential = GoogleAuthProvider.credential(
+        accessToken: googleAuth?.accessToken,
+        idToken: googleAuth?.idToken,
+      );
 
-  signInWithGoogle(BuildContext context) async {
-    final FirebaseAuth firebaseAuth = FirebaseAuth.instance;
-    final GoogleSignIn googleSignIn = GoogleSignIn();
+      // Sign in with Firebase
+      await FirebaseAuth.instance.signInWithCredential(credential);
 
-    final GoogleSignInAccount? googleSignInAccount =
-        await googleSignIn.signIn();
-
-    final GoogleSignInAuthentication? googleSignInAuthentication =
-        await googleSignInAccount?.authentication;
-
-    final AuthCredential credential = GoogleAuthProvider.credential(
-        idToken: googleSignInAuthentication?.idToken,
-        accessToken: googleSignInAuthentication?.accessToken);
-
-    UserCredential result = await firebaseAuth.signInWithCredential(credential);
-
-    User? userDetails = result.user;
-
-    if (result != null) {
-      Map<String, dynamic> userInfoMap = {
-        "email": userDetails!.email,
-        "name": userDetails.displayName,
-        "imgUrl": userDetails.photoURL,
-        "id": userDetails.uid
-      };
-      await DatabaseMethods()
-          .addUser(userDetails.uid, userInfoMap)
-          .then((value) {
-        Navigator.push(
-            context, MaterialPageRoute(builder: (context) => SignUp()));
-      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          backgroundColor: Colors.green,
+          content: Text(
+            "Google Sign-In successful!",
+            style: TextStyle(fontSize: 18, color: Colors.white),
+          ),
+        ),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        backgroundColor: Colors.red,
+        content: Text(
+          "Error during Google Sign-In: $e",
+          style: const TextStyle(fontSize: 18, color: Colors.white),
+        ),
+      ));
     }
   }
 }

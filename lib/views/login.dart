@@ -21,46 +21,16 @@ class _LoginState extends State<Login> {
 
   TextEditingController emailController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
+  final AuthService _authService = AuthService();
 
   final formKey = GlobalKey<FormState>();
   Future signInWithGoogle() async {
-    try {
-      final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
-      final GoogleSignInAuthentication? googleAuth =
-          await googleUser?.authentication;
-
-      final credential = GoogleAuthProvider.credential(
-        accessToken: googleAuth?.accessToken,
-        idToken: googleAuth?.idToken,
-      );
-
-      // Sign in with Google credentials
-      await FirebaseAuth.instance.signInWithCredential(credential);
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          backgroundColor: Colors.green,
-          content: Text(
-            "Google Sign-In successful!",
-            style: TextStyle(fontSize: 18, color: Colors.white),
-          ),
-        ),
-      );
-
-      // Navigate to BottomNav
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => BottomNav()),
-      );
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        backgroundColor: Colors.red,
-        content: Text(
-          "Error during Google Sign-In: $e",
-          style: const TextStyle(fontSize: 18, color: Colors.white),
-        ),
-      ));
-    }
+    await _authService.signInWithGoogle(context);
+    // Navigate to BottomNav
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (context) => BottomNav()),
+    );
   }
 
   // Email/Password Login
