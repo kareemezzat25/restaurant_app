@@ -145,20 +145,21 @@ class _AddItemState extends State<AddItem> {
     return SafeArea(
       child: Scaffold(
         appBar: AppBar(
-          backgroundColor: Colors.transparent,
+          backgroundColor: Colors.black,
           elevation: 0,
           leading: GestureDetector(
               onTap: () {
                 Navigator.pop(context);
               },
               child: const Icon(
-                Icons.arrow_back_ios_new_outlined,
-                color: Color(0xFF373866),
+                Icons.arrow_back,
+                color: Colors.white,
               )),
           centerTitle: true,
           title: const Text(
             "Add Item",
-            style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+            style: TextStyle(
+                fontSize: 24, fontWeight: FontWeight.bold, color: Colors.white),
           ),
         ),
         backgroundColor: Colors.white,

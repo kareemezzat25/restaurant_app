@@ -11,30 +11,44 @@ class AdminLogin extends StatefulWidget {
 
 class _AdminLoginState extends State<AdminLogin> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
-  TextEditingController usernameController = TextEditingController();
+  TextEditingController EmailController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
   bool _isObscure = true;
 
   // Example of authenticating admin using Supabase auth
-  Future<void> loginAdmin() async {
+  Future<void> loginUser() async {
     final supabase = Supabase.instance.client;
+
     try {
-      // code error in this
       final response = await supabase.auth.signInWithPassword(
-        email: usernameController.text.trim(), // Use email for admin login
+        email: EmailController.text.trim(),
         password: passwordController.text.trim(),
       );
-      print("Resonse: $response");
-      if (response == null) {
-        _showSnackBar("Username or Password is incorrect.");
-        return;
-      }
+      print("Response: ${response}");
+      print("User: ${response.user}");
 
-      // Navigate to HomeAdmin if login is successful
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => HomeAdmin()),
-      );
+      if (response.user != null) {
+        final userId = response.user!.id;
+        final userData = await supabase
+            .from('users')
+            .select('role')
+            .eq('email', EmailController.text.trim())
+            .maybeSingle();
+
+        if (userData != null && userData['role'] == 'admin') {
+          _showSnackBar("Login successful! Welcome Admin.");
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => HomeAdmin(),
+            ),
+          );
+        } else {
+          _showSnackBar("You are not authorized as Admin.");
+        }
+      } else {
+        _showSnackBar("Login failed. Please check your credentials.");
+      }
     } catch (e) {
       _showSnackBar("An error occurred: $e");
     }
@@ -72,9 +86,9 @@ class _AdminLoginState extends State<AdminLogin> {
                 ),
                 const SizedBox(height: 30),
                 TextFormField(
-                  controller: usernameController,
+                  controller: EmailController,
                   decoration: InputDecoration(
-                    labelText: 'Username',
+                    labelText: 'Email',
                     prefixIcon: const Icon(Icons.person),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(16),
@@ -82,7 +96,7 @@ class _AdminLoginState extends State<AdminLogin> {
                   ),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Please enter your username';
+                      return 'Please enter your Email';
                     }
                     return null;
                   },
@@ -121,7 +135,7 @@ class _AdminLoginState extends State<AdminLogin> {
                   child: ElevatedButton(
                     onPressed: () {
                       if (_formKey.currentState!.validate()) {
-                        loginAdmin();
+                        loginUser();
                       }
                     },
                     style: ElevatedButton.styleFrom(

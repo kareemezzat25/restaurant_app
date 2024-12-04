@@ -1,8 +1,7 @@
-import 'dart:math';
-
 import 'package:flutter/material.dart';
-import 'package:resturant_app/views/fooddetails.dart';
-import 'package:resturant_app/widgets/textwidget.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:resturant_app/widgets/showitemButton.dart'; // Assuming it's a custom widget
+import 'package:resturant_app/widgets/textwidget.dart'; // Assuming it's a custom widget
 
 class HomeView extends StatefulWidget {
   const HomeView({super.key});
@@ -12,185 +11,209 @@ class HomeView extends StatefulWidget {
 }
 
 class _HomeState extends State<HomeView> {
+  List<Map<String, dynamic>> first6Items = [];
+  List<Map<String, dynamic>> next12Items = [];
+  bool isLoading = true; // New loading state
+
   bool icecream = false;
   bool salad = false;
   bool burger = false;
   bool pizza = false;
 
   @override
+  void initState() {
+    super.initState();
+    // Fetch data and update loading state
+    fetchFirst6Items().then((items) {
+      setState(() {
+        first6Items = items;
+        isLoading = false; // Data fetching completed
+      });
+    });
+    fetchNext12Items().then((items) {
+      setState(() {
+        next12Items = items;
+      });
+    });
+  }
+
+  Future<List<Map<String, dynamic>>> fetchFirst6Items() async {
+    try {
+      final response = await Supabase.instance.client
+          .from('item')
+          .select('*')
+          .range(0, 5); // Fetch first 6 items (index 0 to 5)
+
+      if (response == null || response.isEmpty) {
+        print("No items found in the database.");
+        return [];
+      }
+
+      print("Fetched first 6 items: $response");
+      return List<Map<String, dynamic>>.from(response);
+    } catch (error) {
+      print("Error fetching data for first 6 items: $error");
+      return [];
+    }
+  }
+
+  Future<List<Map<String, dynamic>>> fetchNext12Items() async {
+    try {
+      final response = await Supabase.instance.client
+          .from('item')
+          .select('*')
+          .range(6, 17); // Fetch next 12 items (index 6 to 17)
+
+      if (response == null || response.isEmpty) {
+        print("No next 12 items found.");
+        return [];
+      }
+
+      print("Fetched next 12 items: $response");
+      return List<Map<String, dynamic>>.from(response);
+    } catch (error) {
+      print("Error fetching data for next 12 items: $error");
+      return [];
+    }
+  }
+
+  String buildImageUrl(String fileName) {
+    // Generate the public URL using Supabase's storage method
+    final url = Supabase.instance.client.storage
+        .from('food_images') // Bucket name
+        .getPublicUrl(fileName);
+    return url;
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Container(
-          margin: EdgeInsets.only(left: 10, top: 40, bottom: 40),
-          child: SingleChildScrollView(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text("Hello uname,",
-                        style: TextWidget.boldTextFieldStyle()),
-                    Container(
-                        margin: EdgeInsets.only(right: 20),
-                        padding: EdgeInsets.all(3),
-                        decoration: BoxDecoration(
-                            color: Colors.black,
-                            borderRadius: BorderRadius.circular(10)),
-                        child: Icon(Icons.shopping_cart, color: Colors.white))
-                  ],
-                ),
-                SizedBox(height: 20),
-                Text("Delicious Food",
-                    style: TextWidget.HeadLineTextFieldStyle()),
-                Text("Discover and get Great Food",
-                    style: TextWidget.LightTextFieldStyle()),
-                SizedBox(
-                  height: 20,
-                ),
-                Container(
-                    margin: EdgeInsets.only(right: 10), child: showItem()),
-                SizedBox(height: 30),
-                SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  child: Row(
-                    children: [
-                      Container(
-                        margin: EdgeInsets.all(4),
-                        child: Material(
-                          elevation: 1,
-                          borderRadius: BorderRadius.circular(15),
-                          child: GestureDetector(
-                            onTap: () {
-                              Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (context) => FoodDetails()));
-                            },
-                            child: Container(
-                              padding: EdgeInsets.all(14),
-                              child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Image.asset("images/Cheeseburger.jpg",
-                                        height: 150,
-                                        width: 150,
-                                        fit: BoxFit.fill),
-                                    Text("veggie Taco Hash",
-                                        style: TextWidget
-                                            .semiBoldTextFieldStyle()),
-                                    SizedBox(
-                                      height: 5,
-                                    ),
-                                    Text("Fresh and healthy",
-                                        style:
-                                            TextWidget.LightTextFieldStyle()),
-                                    SizedBox(
-                                      height: 5,
-                                    ),
-                                    Text(
-                                      "\$25",
-                                      style:
-                                          TextWidget.semiBoldTextFieldStyle(),
-                                    )
-                                  ]),
-                            ),
-                          ),
-                        ),
-                      ),
-                      SizedBox(
-                        width: 15,
-                      ),
-                      Container(
-                        margin: EdgeInsets.all(4),
-                        child: Material(
-                          elevation: 1,
-                          borderRadius: BorderRadius.circular(15),
-                          child: Container(
-                            padding: EdgeInsets.all(14),
-                            child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Image.asset("images/icecream.jpg",
-                                      height: 150,
-                                      width: 150,
-                                      fit: BoxFit.fill),
-                                  Text("icecream Hash",
-                                      style:
-                                          TextWidget.semiBoldTextFieldStyle()),
-                                  SizedBox(
-                                    height: 5,
-                                  ),
-                                  Text("Fresh and healthy",
-                                      style: TextWidget.LightTextFieldStyle()),
-                                  SizedBox(
-                                    height: 5,
-                                  ),
-                                  Text(
-                                    "\$18",
-                                    style: TextWidget.semiBoldTextFieldStyle(),
-                                  )
-                                ]),
-                          ),
-                        ),
-                      )
-                    ],
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        centerTitle: true,
+        title: Text(
+          "Fcsu_resturant",
+          style: TextStyle(
+            fontFamily: "Hurricane",
+            color: Colors.black,
+            fontSize: 24,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        actions: [Icon(Icons.search)],
+      ),
+      body: SingleChildScrollView(
+        child: Column(
+          children: [
+            Container(
+              margin: EdgeInsets.only(left: 10, bottom: 40),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  SizedBox(height: 20),
+                  Text("Delicious Food",
+                      style: TextWidget.HeadLineTextFieldStyle()),
+                  Text("Discover and get Great Food",
+                      style: TextWidget.LightTextFieldStyle()),
+                  SizedBox(height: 20),
+                  Container(
+                    margin: EdgeInsets.only(right: 10),
+                    child: showItem(),
                   ),
-                ),
-                SizedBox(height: 30),
-                Container(
-                  margin: EdgeInsets.only(right: 10),
-                  child: Material(
-                    elevation: 5,
-                    borderRadius: BorderRadius.circular(10),
-                    child: Container(
-                      padding: EdgeInsets.all(5),
-                      child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Image.asset("images/salad.jpg",
-                                height: 120, width: 120, fit: BoxFit.fill),
-                            SizedBox(
-                              width: 20,
-                            ),
-                            Column(
-                              children: [
-                                Container(
-                                  width: MediaQuery.of(context).size.width / 2,
-                                  child: Text(
-                                    "Pizza Margherita",
-                                    style: TextWidget.semiBoldTextFieldStyle(),
-                                  ),
-                                ),
-                                SizedBox(
-                                  height: 5,
-                                ),
-                                Container(
-                                  width: MediaQuery.of(context).size.width / 2,
-                                  child: Text(
-                                    "is a typical Neapolitan pizza",
-                                    style: TextWidget.LightTextFieldStyle(),
-                                  ),
-                                ),
-                                SizedBox(
-                                  height: 5,
-                                ),
-                                Container(
-                                  width: MediaQuery.of(context).size.width / 2,
-                                  child: Text(
-                                    "\$25",
-                                    style: TextWidget.semiBoldTextFieldStyle(),
-                                  ),
-                                )
-                              ],
-                            )
-                          ]),
-                    ),
-                  ),
-                )
-              ],
+                  SizedBox(height: 30),
+                ],
+              ),
             ),
-          )),
+
+            // First 6 items display
+            isLoading
+                ? Center(
+                    child:
+                        CircularProgressIndicator()) // Show loading indicator
+                : first6Items.isEmpty
+                    ? Text(
+                        "Less than 6 items available.") // Show this if no items
+                    : Container(
+                        child: ListView.builder(
+                          shrinkWrap: true,
+                          physics: NeverScrollableScrollPhysics(),
+                          itemCount: first6Items.length,
+                          itemBuilder: (context, index) {
+                            final item = first6Items[index];
+                            final imageUrl = buildImageUrl(item['itemimage']);
+
+                            return Container(
+                              margin: EdgeInsets.symmetric(vertical: 8),
+                              padding: EdgeInsets.all(8),
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(12),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.grey.withOpacity(0.2),
+                                    blurRadius: 5,
+                                    offset: Offset(0, 3),
+                                  ),
+                                ],
+                              ),
+                              child: Row(
+                                children: [
+                                  ClipRRect(
+                                    borderRadius: BorderRadius.circular(8),
+                                    child: Image.network(
+                                      imageUrl,
+                                      width: 80,
+                                      height: 80,
+                                      fit: BoxFit.cover,
+                                      errorBuilder:
+                                          (context, error, stackTrace) {
+                                        return Icon(Icons.error,
+                                            color: Colors.red);
+                                      },
+                                    ),
+                                  ),
+                                  SizedBox(width: 16),
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          item['itemname'],
+                                          style: TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 16,
+                                          ),
+                                        ),
+                                        SizedBox(height: 4),
+                                        Text(
+                                          item['itemdetails'] ?? '',
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+                                          style: TextStyle(
+                                            color: Colors.grey[600],
+                                          ),
+                                        ),
+                                        SizedBox(height: 4),
+                                        Text(
+                                          "\$${item['itemprice']}",
+                                          style: TextStyle(
+                                            color: Colors.green,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+          ],
+        ),
+      ),
     );
   }
 
@@ -198,86 +221,58 @@ class _HomeState extends State<HomeView> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        GestureDetector(
+        ShowItemButton(
+          imagePath: "images/ice-cream.png",
+          itemName: "Ice Cream",
+          isSelected: icecream,
           onTap: () {
-            icecream = true;
-            salad = false;
-            pizza = false;
-            burger = false;
-            setState(() {});
+            setState(() {
+              icecream = true;
+              salad = false;
+              pizza = false;
+              burger = false;
+            });
           },
-          child: Material(
-            elevation: 5,
-            borderRadius: BorderRadius.circular(10),
-            child: Container(
-                padding: EdgeInsets.all(10),
-                decoration: BoxDecoration(
-                    color: icecream ? Colors.black : Colors.white,
-                    borderRadius: BorderRadius.circular(10)),
-                child: Image.asset("images/icecream.png",
-                    height: 40, width: 40, fit: BoxFit.fill)),
-          ),
         ),
-        GestureDetector(
+        ShowItemButton(
+          imagePath: "images/burger.png",
+          itemName: "Burger",
+          isSelected: burger,
           onTap: () {
-            burger = true;
-            salad = false;
-            pizza = false;
-            icecream = false;
-            setState(() {});
+            setState(() {
+              burger = true;
+              salad = false;
+              pizza = false;
+              icecream = false;
+            });
           },
-          child: Material(
-            elevation: 5,
-            borderRadius: BorderRadius.circular(10),
-            child: Container(
-                decoration: BoxDecoration(
-                    color: burger ? Colors.black : Colors.white,
-                    borderRadius: BorderRadius.circular(10)),
-                padding: EdgeInsets.all(10),
-                child: Image.asset("images/burger.png",
-                    height: 40, width: 40, fit: BoxFit.fill)),
-          ),
         ),
-        GestureDetector(
+        ShowItemButton(
+          imagePath: "images/pizza.png",
+          itemName: "Pizza",
+          isSelected: pizza,
           onTap: () {
-            pizza = true;
-            salad = false;
-            burger = false;
-            icecream = false;
-            setState(() {});
+            setState(() {
+              pizza = true;
+              salad = false;
+              burger = false;
+              icecream = false;
+            });
           },
-          child: Material(
-            elevation: 5,
-            borderRadius: BorderRadius.circular(10),
-            child: Container(
-                padding: EdgeInsets.all(10),
-                decoration: BoxDecoration(
-                    color: pizza ? Colors.black : Colors.white,
-                    borderRadius: BorderRadius.circular(10)),
-                child: Image.asset("images/pizza.png",
-                    height: 40, width: 40, fit: BoxFit.fill)),
-          ),
         ),
-        GestureDetector(
+        ShowItemButton(
+          imagePath: "images/salad.png",
+          itemName: "Salad",
+          isSelected: salad,
           onTap: () {
-            salad = true;
-            pizza = false;
-            burger = false;
-            icecream = false;
-            setState(() {});
+            setState(() {
+              salad = true;
+              pizza = false;
+              burger = false;
+              icecream = false;
+            });
           },
-          child: Material(
-            elevation: 5,
-            borderRadius: BorderRadius.circular(10),
-            child: Container(
-                decoration: BoxDecoration(
-                    color: salad ? Colors.black : Colors.white,
-                    borderRadius: BorderRadius.circular(10)),
-                padding: EdgeInsets.all(10),
-                child: Image.asset("images/salad.png",
-                    height: 40, width: 40, fit: BoxFit.fill)),
-          ),
-        )
+        ),
       ],
     );
   }
