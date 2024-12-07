@@ -127,69 +127,93 @@ class _SearchFoodItemState extends State<SearchFoodItem> {
                             itemBuilder: (context, index) {
                               final item = searchResults[index];
                               return GestureDetector(
-                                onTap: () {
-                                  Navigator.push(
+                                onTap: () async {
+                                  final result = await Navigator.push(
                                     context,
                                     MaterialPageRoute(
                                       builder: (context) =>
                                           ItemDetails(itemId: item['id']),
                                     ),
                                   );
+                                  if (result != null) {
+                                    fetchAllItems();
+                                  }
                                 },
-                                child: Card(
+                                child: Container(
                                   margin: EdgeInsets.symmetric(vertical: 8),
-                                  child: ListTile(
-                                    contentPadding: EdgeInsets.all(10),
-                                    leading: ClipRRect(
-                                      borderRadius: BorderRadius.circular(8),
-                                      child: Image.network(
-                                        item['itemimage'] ??
-                                            '', // If the item image is null, the empty string will be used
-                                        width: 80,
-                                        height: 80,
-                                        fit: BoxFit.cover,
-                                        errorBuilder:
-                                            (context, error, stackTrace) {
-                                          // Fallback image in case of error or null image
-                                          return Image.asset(
-                                            'images/salad2.png', // Fallback asset image
-                                            width: 80,
-                                            height: 80,
-                                            fit: BoxFit.fill,
-                                          );
-                                        },
+                                  padding: EdgeInsets.all(10),
+                                  decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.circular(12),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: Colors.grey.withOpacity(0.2),
+                                        blurRadius: 4,
+                                        offset: Offset(0, 4),
                                       ),
-                                    ),
-                                    title: Text(item['itemname']),
-                                    subtitle: Container(
-                                      child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          Text(
-                                            item['category'], // Item name
-                                            style: TextStyle(
-                                                fontWeight: FontWeight.bold),
-                                          ),
-                                          SizedBox(height: 4),
-                                          Text(
-                                            'Price: \$${item['itemprice']}', // Item price
-                                            style: TextStyle(
-                                                fontWeight: FontWeight.bold),
-                                          ),
-                                          SizedBox(height: 4),
-                                          // Show first 2 lines of details
-                                          Text(
-                                            item['itemdetails'] ?? '',
-                                            maxLines: 2, // Limit to 2 lines
-                                            overflow: TextOverflow
-                                                .ellipsis, // Add ellipsis for overflow
-                                          ),
-                                        ],
+                                    ],
+                                  ),
+                                  child: Row(
+                                    children: [
+                                      ClipRRect(
+                                        borderRadius: BorderRadius.circular(8),
+                                        child: Image.network(
+                                          item['itemimage'] ?? '',
+                                          width: 80,
+                                          height: 80,
+                                          fit: BoxFit.cover,
+                                          errorBuilder:
+                                              (context, error, stackTrace) {
+                                            return Icon(Icons.error,
+                                                color: Colors.red);
+                                          },
+                                        ),
                                       ),
-                                    ),
-                                    trailing: SizedBox
-                                        .shrink(), // No edit or delete icons shown
+                                      SizedBox(width: 16),
+                                      Expanded(
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              item['itemname'] ??
+                                                  'Unknown Name',
+                                              style: TextStyle(
+                                                fontWeight: FontWeight.bold,
+                                                fontSize: 16,
+                                              ),
+                                            ),
+                                            SizedBox(height: 4),
+                                            Text(
+                                              item['category'] ??
+                                                  'Unknown Category',
+                                              style: TextStyle(
+                                                color: Colors.grey[600],
+                                              ),
+                                            ),
+                                            SizedBox(height: 4),
+                                            Text(
+                                              "\$${item['itemprice']?.toStringAsFixed(2) ?? 'N/A'}",
+                                              style: TextStyle(
+                                                color: Colors.green,
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                            ),
+                                            const SizedBox(height: 4),
+                                            Text(
+                                              item['itemdetails'] ?? '',
+                                              maxLines: 2, // Limit to 2 lines
+                                              overflow: TextOverflow
+                                                  .ellipsis, // Ellipsis for overflow
+                                              style: TextStyle(
+                                                fontSize: 12,
+                                                color: Colors.black54,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ],
                                   ),
                                 ),
                               );

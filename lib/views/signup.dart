@@ -3,7 +3,9 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:resturant_app/service/auth.dart';
 import 'package:resturant_app/views/bottomnav.dart';
+import 'package:resturant_app/views/home.dart';
 import 'package:resturant_app/views/login.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class SignUp extends StatefulWidget {
   const SignUp({super.key});
@@ -13,52 +15,56 @@ class SignUp extends StatefulWidget {
 }
 
 class _SignUpState extends State<SignUp> {
-  String email = "";
-  String password = "";
-  String name = "";
   bool _isObscure = true;
 
   TextEditingController emailController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
-  TextEditingController nameController = TextEditingController();
+  TextEditingController usernameController = TextEditingController();
   final AuthService _authService = AuthService();
 
   final formKey = GlobalKey<FormState>();
 
-  registertion() async {
-    if (password.isNotEmpty) {
-      try {
-        UserCredential userCredential = await FirebaseAuth.instance
-            .createUserWithEmailAndPassword(email: email, password: password);
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          backgroundColor: Colors.green,
-          content: Text(
-            "Registered Successfully",
-            style: TextStyle(fontSize: 20, color: Colors.white),
+  Future<void> signup() async {
+    final supabase = Supabase.instance.client;
+
+    try {
+      // store email and password in auth
+      final response = await supabase.auth.signUp(
+        email: emailController.text.trim(),
+        password: passwordController.text.trim(),
+      );
+
+      if (response.user != null) {
+        await supabase.from('users').insert({
+          'username': usernameController.text.trim(),
+          'email': emailController.text.trim(),
+          'password': passwordController.text.trim(),
+          'role': 'user',
+        });
+
+        _showSnackBar("Account created successfully!", Colors.green);
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => HomeView(),
           ),
-        ));
-        Navigator.pushReplacement(
-            context, MaterialPageRoute(builder: (context) => BottomNav()));
-      } on FirebaseException catch (e) {
-        if (e.code == "weak-password") {
-          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-            backgroundColor: Colors.red,
-            content: Text(
-              "Password is too weak",
-              style: TextStyle(fontSize: 18, color: Colors.white),
-            ),
-          ));
-        } else if (e.code == "email-already-in-use") {
-          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-            backgroundColor: Colors.red,
-            content: Text(
-              "Account Already exists",
-              style: TextStyle(fontSize: 18, color: Colors.white),
-            ),
-          ));
-        }
+        );
+      } else {
+        _showSnackBar("Failed to create account.", Colors.red);
       }
+    } catch (e) {
+      _showSnackBar("An error occurred: $e", Colors.red);
     }
+  }
+
+  void _showSnackBar(String message, Color colorbackground) {
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+      backgroundColor: colorbackground,
+      content: Text(
+        message,
+        style: const TextStyle(fontSize: 18.0, color: Colors.white),
+      ),
+    ));
   }
 
   @override
@@ -90,7 +96,7 @@ class _SignUpState extends State<SignUp> {
                   ),
                   const SizedBox(height: 30),
                   TextFormField(
-                    controller: nameController,
+                    controller: usernameController,
                     decoration: InputDecoration(
                       labelText: 'Username',
                       prefixIcon: Icon(
@@ -100,7 +106,6 @@ class _SignUpState extends State<SignUp> {
                         borderRadius: BorderRadius.circular(16),
                       ),
                     ),
-                    onChanged: (value) => name = value,
                     validator: (value) {
                       if (value == null || value.isEmpty) {
                         return 'Please enter your username';
@@ -121,7 +126,6 @@ class _SignUpState extends State<SignUp> {
                       ),
                     ),
                     keyboardType: TextInputType.emailAddress,
-                    onChanged: (value) => email = value,
                     validator: (value) {
                       if (value == null || value.isEmpty) {
                         return 'Please enter your email';
@@ -155,7 +159,6 @@ class _SignUpState extends State<SignUp> {
                         borderRadius: BorderRadius.circular(16),
                       ),
                     ),
-                    onChanged: (value) => password = value,
                     validator: (value) {
                       if (value == null || value.isEmpty) {
                         return 'Please enter your password';
@@ -172,7 +175,7 @@ class _SignUpState extends State<SignUp> {
                     child: ElevatedButton(
                       onPressed: () {
                         if (formKey.currentState!.validate()) {
-                          registertion();
+                          signup();
                         }
                       },
                       style: ElevatedButton.styleFrom(

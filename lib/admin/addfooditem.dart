@@ -1,7 +1,7 @@
 import 'dart:io';
+import 'package:duration_picker/duration_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-import 'dart:typed_data'; // For base64 encoding if needed
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class AddItem extends StatefulWidget {
@@ -19,6 +19,20 @@ class _AddItemState extends State<AddItem> {
   TextEditingController detailcontroller = TextEditingController();
   final ImagePicker _picker = ImagePicker();
   File? selectedImage;
+  Duration? selectedDuration;
+
+  Future<void> pickDuration() async {
+    final duration = await showDurationPicker(
+      context: context,
+      initialTime: const Duration(minutes: 0),
+    );
+
+    if (duration != null) {
+      setState(() {
+        selectedDuration = duration;
+      });
+    }
+  }
 
   Future<void> getImage() async {
     final action = await showModalBottomSheet<String>(
@@ -92,18 +106,18 @@ class _AddItemState extends State<AddItem> {
           .from('food_images') // Bucket name
           .uploadBinary(uploadPath, fileBytes);
 
-      // Get the public URL of the uploaded image
       final imageUrl = Supabase.instance.client.storage
           .from('food_images')
           .getPublicUrl(uploadPath);
 
-      // Insert item data into the `item` table
       await Supabase.instance.client.from('item').insert({
         'itemname': namecontroller.text,
         'itemprice': double.parse(pricecontroller.text),
         'itemdetails': detailcontroller.text,
         'category': value,
         'itemimage': imageUrl,
+        'delivery_time':
+            selectedDuration!.inMinutes, // صيغة ISO 8601 للمدة الزمنية
       });
 
       ScaffoldMessenger.of(context).showSnackBar(
@@ -127,6 +141,7 @@ class _AddItemState extends State<AddItem> {
         detailcontroller.clear();
         value = null;
         selectedImage = null;
+        selectedDuration = null;
       });
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -216,6 +231,31 @@ class _AddItemState extends State<AddItem> {
                 controller: pricecontroller,
                 hintText: "Enter Item Price",
                 fillColor: const Color.fromARGB(255, 239, 239, 242),
+              ),
+              const SizedBox(height: 30.0),
+              const Text(
+                "Delivery Time",
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 10.0),
+              GestureDetector(
+                onTap: pickDuration,
+                child: Container(
+                  width: MediaQuery.of(context).size.width,
+                  padding: const EdgeInsets.symmetric(vertical: 15.0),
+                  decoration: BoxDecoration(
+                    color: const Color.fromARGB(255, 239, 239, 242),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Center(
+                    child: Text(
+                      selectedDuration != null
+                          ? "${selectedDuration!.inMinutes} Minutes"
+                          : "Select Delivery Time",
+                      style: const TextStyle(fontSize: 16),
+                    ),
+                  ),
+                ),
               ),
               const SizedBox(height: 30.0),
               const Text(

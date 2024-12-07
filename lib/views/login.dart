@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:resturant_app/service/auth.dart';
 import 'package:resturant_app/views/forgetPassword.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'bottomnav.dart'; // Replace with your BottomNav widget import
 import 'signup.dart'; // Replace with your SignUp page widget import
 
@@ -15,8 +16,6 @@ class Login extends StatefulWidget {
 }
 
 class _LoginState extends State<Login> {
-  String email = "";
-  String password = "";
   bool _isObscure = true;
 
   TextEditingController emailController = TextEditingController();
@@ -35,51 +34,62 @@ class _LoginState extends State<Login> {
 
   // Email/Password Login
   Future<void> userLogin() async {
+    final supabase = Supabase.instance.client;
+
     try {
-      UserCredential userCredential = await FirebaseAuth.instance
-          .signInWithEmailAndPassword(email: email, password: password);
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          backgroundColor: Colors.green,
-          content: Text(
-            "Login Successfully",
-            style: TextStyle(fontSize: 20, color: Colors.white),
-          ),
-        ),
+      final response = await supabase.auth.signInWithPassword(
+        email: emailController.text.trim(),
+        password: passwordController.text.trim(),
       );
+      print("Response: ${response}");
 
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => BottomNav()),
-      );
-    } on FirebaseAuthException catch (e) {
-      if (e.code == "user-not-found") {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-          backgroundColor: Colors.red,
-          content: Text(
-            "No user found for this email.",
-            style: TextStyle(fontSize: 18, color: Colors.white),
-          ),
-        ));
-      } else if (e.code == "wrong-password") {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-          backgroundColor: Colors.red,
-          content: Text(
-            "Wrong password provided.",
-            style: TextStyle(fontSize: 18, color: Colors.white),
-          ),
-        ));
+      if (response.user != null) {
+        try {
+          final userData = await supabase
+              .from('users')
+              .select('role')
+              .eq('email', emailController.text.trim())
+              .maybeSingle();
+
+          print("User data: $userData");
+
+          if (userData != null && userData['role'] == 'user') {
+            _showSnackBar("Login successful!", Colors.green);
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                builder: (context) => BottomNav(),
+              ),
+            );
+          } else {
+            _showSnackBar("You are not authenticted.", Colors.red);
+          }
+        } catch (error) {
+          print("Error fetching user data: $error");
+          _showSnackBar(
+              "An error occurred while fetching user data.", Colors.red);
+        }
       } else {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          backgroundColor: Colors.red,
-          content: Text(
-            "Error: ${e.message}",
-            style: const TextStyle(fontSize: 18, color: Colors.white),
-          ),
-        ));
+        _showSnackBar(
+            "Login failed. Please check your credentials.", Colors.red);
       }
+    } catch (e) {
+      // في حالة وجود خطأ أثناء تسجيل الدخول
+      print("Error during login: $e");
+      _showSnackBar("An error occurred: $e", Colors.red);
     }
+  }
+
+  void _showSnackBar(String message, Color backgroundColor) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        backgroundColor: backgroundColor,
+        content: Text(
+          message,
+          style: const TextStyle(fontSize: 18.0),
+        ),
+      ),
+    );
   }
 
   // Google Sign-In
@@ -121,7 +131,6 @@ class _LoginState extends State<Login> {
                       ),
                     ),
                     keyboardType: TextInputType.emailAddress,
-                    onChanged: (value) => email = value,
                     validator: (value) {
                       if (value == null || value.isEmpty) {
                         return 'Please enter your email';
@@ -153,7 +162,6 @@ class _LoginState extends State<Login> {
                         borderRadius: BorderRadius.circular(16),
                       ),
                     ),
-                    onChanged: (value) => password = value,
                     validator: (value) {
                       if (value == null || value.isEmpty) {
                         return 'Please enter your password';

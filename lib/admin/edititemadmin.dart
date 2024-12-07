@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:resturant_app/admin/itemdetailsAdmin.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class EditItem extends StatefulWidget {
@@ -145,7 +146,13 @@ class _EditItemState extends State<EditItem> {
         ),
       );
 
-      Navigator.pop(context); // Go back to the previous screen
+      Navigator.pop(context, {
+        'itemname': nameController.text,
+        'itemprice': double.parse(priceController.text),
+        'itemdetails': detailController.text,
+        'category': selectedCategory,
+        'itemimage': newImageUrl,
+      });
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -199,19 +206,24 @@ class _EditItemState extends State<EditItem> {
                     ),
                     child: selectedImage == null
                         ? (currentImageUrl != null
-                            ? Image.network(
-                                currentImageUrl!,
-                                fit: BoxFit.fill,
-                                errorBuilder: (context, error, stackTrace) {
-                                  // Use fallback asset image if network image fails
-                                  return ClipRRect(
-                                    borderRadius: BorderRadius.circular(20),
-                                    child: Image.asset(
-                                      'images/salad2.png',
-                                      fit: BoxFit.fill,
-                                    ),
-                                  );
-                                },
+                            ? ClipRRect(
+                                borderRadius: BorderRadius.circular(20),
+                                child: Image.network(
+                                  width: 150,
+                                  height: 150,
+                                  currentImageUrl!,
+                                  fit: BoxFit.fill,
+                                  errorBuilder: (context, error, stackTrace) {
+                                    // Use fallback asset image if network image fails
+                                    return ClipRRect(
+                                      borderRadius: BorderRadius.circular(20),
+                                      child: Image.asset(
+                                        'images/salad2.png',
+                                        fit: BoxFit.fill,
+                                      ),
+                                    );
+                                  },
+                                ),
                               )
                             : ClipRRect(
                                 borderRadius: BorderRadius.circular(20),
@@ -223,6 +235,8 @@ class _EditItemState extends State<EditItem> {
                         : ClipRRect(
                             borderRadius: BorderRadius.circular(20),
                             child: Image.file(
+                              width: 150,
+                              height: 150,
                               selectedImage!,
                               fit: BoxFit.fill,
                             ),

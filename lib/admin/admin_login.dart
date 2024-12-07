@@ -36,7 +36,7 @@ class _AdminLoginState extends State<AdminLogin> {
             .maybeSingle();
 
         if (userData != null && userData['role'] == 'admin') {
-          _showSnackBar("Login successful! Welcome Admin.");
+          _showSnackBar("Login successful! Welcome Admin.", Colors.green);
           Navigator.push(
             context,
             MaterialPageRoute(
@@ -44,19 +44,20 @@ class _AdminLoginState extends State<AdminLogin> {
             ),
           );
         } else {
-          _showSnackBar("You are not authorized as Admin.");
+          _showSnackBar("You are not authorized as Admin.", Colors.red);
         }
       } else {
-        _showSnackBar("Login failed. Please check your credentials.");
+        _showSnackBar(
+            "Login failed. Please check your credentials.", Colors.red);
       }
     } catch (e) {
-      _showSnackBar("An error occurred: $e");
+      _showSnackBar("An error occurred: $e", Colors.red);
     }
   }
 
-  void _showSnackBar(String message) {
+  void _showSnackBar(String message, Color backgroundcolor) {
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-      backgroundColor: Colors.red,
+      backgroundColor: backgroundcolor,
       content: Text(
         message,
         style: const TextStyle(fontSize: 18.0),

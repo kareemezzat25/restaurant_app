@@ -19,13 +19,12 @@ class _AdminSignupState extends State<AdminSignup> {
     final supabase = Supabase.instance.client;
 
     try {
-      // إنشاء المستخدم باستخدام Supabase Auth
+      // store email and password in auth
       final response = await supabase.auth.signUp(
         email: emailController.text.trim(),
         password: passwordController.text.trim(),
       );
 
-      // التحقق من نجاح التسجيل
       if (response.user != null) {
         await supabase.from('users').insert({
           'username': usernameController.text.trim(),
@@ -34,25 +33,24 @@ class _AdminSignupState extends State<AdminSignup> {
           'role': 'admin',
         });
 
-        // عرض رسالة نجاح
-        _showSnackBar("Account created successfully!");
+        _showSnackBar("Account created successfully!", Colors.green);
         Navigator.push(
           context,
           MaterialPageRoute(
             builder: (context) => AdminLogin(),
           ),
-        ); // الرجوع إلى صفحة تسجيل الدخول
+        );
       } else {
-        _showSnackBar("Failed to create account.");
+        _showSnackBar("Failed to create account.", Colors.red);
       }
     } catch (e) {
-      _showSnackBar("An error occurred: $e");
+      _showSnackBar("An error occurred: $e", Colors.red);
     }
   }
 
-  void _showSnackBar(String message) {
+  void _showSnackBar(String message, Color colorbackground) {
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-      backgroundColor: Colors.red,
+      backgroundColor: colorbackground,
       content: Text(
         message,
         style: const TextStyle(fontSize: 18.0, color: Colors.white),
