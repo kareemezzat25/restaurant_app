@@ -2,7 +2,7 @@ import "package:curved_navigation_bar/curved_navigation_bar.dart";
 import "package:flutter/material.dart";
 import "package:resturant_app/views/home.dart";
 import "package:resturant_app/views/orderview.dart";
-import "package:resturant_app/views/profileview.dart";
+import "package:resturant_app/views/profile.dart";
 import "package:resturant_app/views/walletview.dart";
 
 class BottomNav extends StatefulWidget {

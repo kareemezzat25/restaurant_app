@@ -83,16 +83,8 @@ class _SearchFoodItemState extends State<SearchFoodItem> {
     return SafeArea(
       child: Scaffold(
         appBar: AppBar(
-          leading: GestureDetector(
-            onTap: () {
-              Navigator.pop(context);
-            },
-            child: Icon(
-              Icons.arrow_back,
-              color: Colors.white,
-            ),
-          ),
           backgroundColor: Colors.black,
+          centerTitle: true,
           title: const Text(
             "Search Food Items",
             style: TextStyle(color: Colors.white),

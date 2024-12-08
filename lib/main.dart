@@ -1,7 +1,6 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:resturant_app/admin/admin_login.dart';
-import 'package:resturant_app/admin/adminsignup.dart';
 import 'package:resturant_app/firebase_options.dart';
 import 'package:resturant_app/views/onBoard.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -39,7 +38,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: AdminLogin(), // Directly open AdminLogin
+      home: OnboardingScreen(), // Directly open AdminLogin
     );
   }
 }

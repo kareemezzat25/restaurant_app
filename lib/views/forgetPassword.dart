@@ -3,7 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:resturant_app/views/signup.dart';
 
 class ForgotPassword extends StatefulWidget {
-  const ForgotPassword({super.key});
+  bool message;
+  ForgotPassword({super.key, required this.message});
 
   @override
   State<ForgotPassword> createState() => _ForgotPasswordState();
@@ -117,7 +118,7 @@ class _ForgotPasswordState extends State<ForgotPassword> {
                                   width: 100,
                                   padding: EdgeInsets.all(10),
                                   decoration: BoxDecoration(
-                                      color: Colors.blueAccent,
+                                      color: Color(0xff2C9CEE),
                                       borderRadius: BorderRadius.circular(18)),
                                   child: Center(
                                     child: Text(
@@ -134,35 +135,36 @@ class _ForgotPasswordState extends State<ForgotPassword> {
                             SizedBox(
                               height: 20.0,
                             ),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Text(
-                                  "Don't have an account?",
-                                  style: TextStyle(
-                                      fontSize: 18.0,
-                                      fontWeight: FontWeight.bold),
-                                ),
-                                SizedBox(
-                                  width: 5.0,
-                                ),
-                                GestureDetector(
-                                  onTap: () {
-                                    Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                            builder: (context) => SignUp()));
-                                  },
-                                  child: const Text(
-                                    "SignUp",
+                            if (widget.message)
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Text(
+                                    "Don't have an account?",
                                     style: TextStyle(
-                                        color: Color(0xffff5722),
                                         fontSize: 18.0,
-                                        fontWeight: FontWeight.w500),
+                                        fontWeight: FontWeight.bold),
                                   ),
-                                )
-                              ],
-                            )
+                                  SizedBox(
+                                    width: 5.0,
+                                  ),
+                                  GestureDetector(
+                                    onTap: () {
+                                      Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                              builder: (context) => SignUp()));
+                                    },
+                                    child: const Text(
+                                      "SignUp",
+                                      style: TextStyle(
+                                          color: Color(0xffff5722),
+                                          fontSize: 18.0,
+                                          fontWeight: FontWeight.w500),
+                                    ),
+                                  )
+                                ],
+                              )
                           ],
                         ),
                       ))),

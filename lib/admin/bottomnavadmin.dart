@@ -1,7 +1,7 @@
 import "package:curved_navigation_bar/curved_navigation_bar.dart";
 import "package:flutter/material.dart";
 import "package:resturant_app/admin/addfooditem.dart";
-import "package:resturant_app/admin/adminprofile.dart";
+import "package:resturant_app/views/profile.dart";
 import "package:resturant_app/admin/searchfood.dart";
 import "package:resturant_app/admin/usersview.dart";
 import "package:resturant_app/views/home.dart";
@@ -20,14 +20,14 @@ class _BottomNavAdminState extends State<BottomNavAdmin> {
   late SearchFoodItem home;
   late AddItem add;
   late Usersview users;
-  late AdminProfile profile;
+  late Profile profile;
 
   @override
   void initState() {
     home = SearchFoodItem();
     add = AddItem();
     users = Usersview();
-    profile = AdminProfile();
+    profile = Profile();
     views = [home, add, users, profile];
 
     super.initState();

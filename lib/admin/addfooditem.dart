@@ -162,14 +162,6 @@ class _AddItemState extends State<AddItem> {
         appBar: AppBar(
           backgroundColor: Colors.black,
           elevation: 0,
-          leading: GestureDetector(
-              onTap: () {
-                Navigator.pop(context);
-              },
-              child: const Icon(
-                Icons.arrow_back,
-                color: Colors.white,
-              )),
           centerTitle: true,
           title: const Text(
             "Add Item",
