@@ -45,6 +45,7 @@ dependencies:
   shared_preferences: ^2.3.3
   supabase: 2.6.0
   duration_picker: ^1.2.0
+  photo_view: ^0.15.0
 
 
 

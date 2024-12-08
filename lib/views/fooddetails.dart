@@ -30,7 +30,8 @@ class _DetailsState extends State<FoodDetails> {
         "item_category": item['category'] ?? '',
         "quantity": quantity,
         "total_price": quantity * price,
-        "item_image": item['itemimage'] ?? '', // رابط الصورة
+        "item_image": item['itemimage'] ?? '',
+        "itemprice": item['itemprice'] ?? 0
       };
 
       final response =

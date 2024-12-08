@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:resturant_app/admin/bottomnavadmin.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:resturant_app/admin/homeAdmin.dart';
 
@@ -40,7 +41,7 @@ class _AdminLoginState extends State<AdminLogin> {
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => HomeAdmin(),
+              builder: (context) => BottomNavAdmin(),
             ),
           );
         } else {

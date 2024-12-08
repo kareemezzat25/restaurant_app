@@ -39,7 +39,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: OnboardingScreen(), // Directly open AdminLogin
+      home: AdminLogin(), // Directly open AdminLogin
     );
   }
 }
