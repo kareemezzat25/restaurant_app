@@ -19,14 +19,14 @@ class _EditProfileViewState extends State<EditProfileView> {
   final ImagePicker _picker = ImagePicker();
   bool isLoading = true;
   File? selectedImage;
+  bool showGenderCard = false;
   String? selectedGender;
   DateTime? selectedDate; //
   final TextEditingController phoneController = TextEditingController();
-  final TextEditingController usernameController =
-      TextEditingController(); // مخصص لـ username
+  final TextEditingController usernameController = TextEditingController();
 
-  String phoneNumber = ''; // لتخزين رقم الهاتف
-
+  String phoneNumber = '';
+  String isoCode = 'US';
   @override
   void initState() {
     super.initState();
@@ -94,6 +94,7 @@ class _EditProfileViewState extends State<EditProfileView> {
   Future<void> fetchUserData() async {
     try {
       final user = supabase.auth.currentUser;
+      print(user);
       if (user != null) {
         final response = await supabase
             .from('users')
@@ -101,12 +102,33 @@ class _EditProfileViewState extends State<EditProfileView> {
             .eq('email', user.email!)
             .limit(1)
             .single();
+
+        final phone = response['phonenumber'] ?? '';
+        try {
+          final phoneInfo =
+              await PhoneNumber.getRegionInfoFromPhoneNumber(phone);
+          setState(() {
+            isoCode = phoneInfo.isoCode ?? 'US';
+            phoneNumber =
+                phone.replaceFirst('+${phoneInfo.dialCode ?? ''}', '');
+          });
+        } catch (e) {
+          print('Invalid phone number: $e');
+          setState(() {
+            isoCode = 'US';
+            phoneNumber = phone.replaceFirst('+1', ''); // معالجة الرقم يدويًا
+          });
+        }
+
         setState(() {
           userData = response;
+
           usernameController.text = response['username'] ?? '';
           selectedGender = response['gender'];
           selectedDate = DateTime.tryParse(response['datebirthday'] ?? '');
-          phoneController.text = response['phonenumber'] ?? '';
+          showGenderCard = selectedGender == null || selectedGender!.isEmpty;
+
+          phoneController.text = phoneNumber;
           isLoading = false;
         });
       } else {
@@ -143,7 +165,7 @@ class _EditProfileViewState extends State<EditProfileView> {
         'username': usernameController.text,
         'gender': selectedGender,
         'datebirthday': selectedDate?.toIso8601String(),
-        'phonenumber': phoneController.text,
+        'phonenumber': phoneNumber,
       };
 
       if (selectedImage != null) {
@@ -161,6 +183,11 @@ class _EditProfileViewState extends State<EditProfileView> {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Profile updated successfully!')),
       );
+      if (selectedGender != null && selectedGender!.isNotEmpty) {
+        setState(() {
+          showGenderCard = false;
+        });
+      }
     } catch (error) {
       print('Error updating profile: $error');
       ScaffoldMessenger.of(context).showSnackBar(
@@ -209,7 +236,8 @@ class _EditProfileViewState extends State<EditProfileView> {
                         radius: 60,
                         backgroundImage: selectedImage != null
                             ? FileImage(File(selectedImage!.path))
-                            : (userData?['imageurl'] != null
+                            : (userData?['imageurl'] != null &&
+                                        userData?['imageurl'].isNotEmpty
                                     ? NetworkImage(userData!['imageurl'])
                                     : const AssetImage('images/anonymous.png'))
                                 as ImageProvider,
@@ -248,7 +276,7 @@ class _EditProfileViewState extends State<EditProfileView> {
                     ),
                   ),
                   const SizedBox(height: 16),
-                  if (selectedGender == null) ...[
+                  if (showGenderCard) ...[
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -331,14 +359,27 @@ class _EditProfileViewState extends State<EditProfileView> {
                         onInputChanged: (PhoneNumber number) {
                           setState(() {
                             phoneNumber = number.phoneNumber ?? '';
+                            isoCode = number.isoCode ?? 'US';
+                            // Update isoCode when country changes
                           });
                         },
-                        initialValue: PhoneNumber(isoCode: 'US'),
+                        onInputValidated: (bool isValid) {
+                          if (isValid) {
+                            setState(() {
+                              phoneNumber = '+$phoneNumber';
+                            });
+                          }
+                        },
+                        initialValue: PhoneNumber(isoCode: isoCode),
                         textFieldController: phoneController,
                         inputDecoration: const InputDecoration(
                           border: InputBorder.none,
                           hintText: 'Enter your phone number',
                         ),
+                        selectorConfig: SelectorConfig(
+                          selectorType: PhoneInputSelectorType.DIALOG,
+                        ),
+                        formatInput: false,
                       ),
                     ),
                   ),

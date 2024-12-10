@@ -17,14 +17,14 @@ class _BottomNavAdminState extends State<BottomNavAdmin> {
   int currentTabIndex = 0;
   late List<Widget> views;
   late Widget currentview;
-  late SearchFoodItem home;
+  late FoodItems home;
   late AddItem add;
   late Usersview users;
   late Profile profile;
 
   @override
   void initState() {
-    home = SearchFoodItem();
+    home = FoodItems();
     add = AddItem();
     users = Usersview();
     profile = Profile();

@@ -48,6 +48,20 @@ class _DetailsState extends State<FoodDetails> {
     }
   }
 
+  String formatDeliveryTime(int minutes) {
+    if (minutes < 60) {
+      return '$minutes minutes';
+    } else {
+      final hours = minutes ~/ 60; // Calculate hours
+      final remainingMinutes = minutes % 60; // Remaining minutes
+      if (remainingMinutes == 0) {
+        return '$hours hours';
+      } else {
+        return '$hours hours and $remainingMinutes minutes';
+      }
+    }
+  }
+
   void _showSnackBar(String message, Color backgroundcolor) {
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
       backgroundColor: backgroundcolor,
@@ -70,7 +84,7 @@ class _DetailsState extends State<FoodDetails> {
           onTap: () {
             Navigator.pop(context);
           },
-          child: Icon(
+          child: const Icon(
             Icons.arrow_back_ios_new_outlined,
             color: Colors.black,
           ),
@@ -80,7 +94,7 @@ class _DetailsState extends State<FoodDetails> {
       ),
       body: SingleChildScrollView(
         child: Padding(
-          padding: const EdgeInsets.only(left: 16.0, right: 16, top: 12),
+          padding: const EdgeInsets.symmetric(horizontal: 16.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -94,11 +108,11 @@ class _DetailsState extends State<FoodDetails> {
                     height: MediaQuery.of(context).size.height / 2.5,
                     fit: BoxFit.fill, // Show the full image
                     errorBuilder: (context, error, stackTrace) =>
-                        Icon(Icons.error, color: Colors.red),
+                        const Icon(Icons.error, color: Colors.red),
                   ),
                 ),
               ),
-              SizedBox(height: 20),
+              const SizedBox(height: 20),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -106,12 +120,12 @@ class _DetailsState extends State<FoodDetails> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        item['category'] ?? '',
-                        style: TextWidget.semiBoldTextFieldStyle(),
-                      ),
-                      Text(
                         item['itemname'] ?? '',
                         style: TextWidget.boldTextFieldStyle(),
+                      ),
+                      Text(
+                        item['category'] ?? '',
+                        style: TextWidget.semiBoldTextFieldStyle(),
                       ),
                     ],
                   ),
@@ -127,13 +141,13 @@ class _DetailsState extends State<FoodDetails> {
                             color: Colors.black,
                             borderRadius: BorderRadius.circular(10),
                           ),
-                          child: Icon(Icons.remove, color: Colors.white),
+                          child: const Icon(Icons.remove, color: Colors.white),
                         ),
                       ),
-                      SizedBox(width: 20),
+                      const SizedBox(width: 20),
                       Text("$counter",
                           style: TextWidget.semiBoldTextFieldStyle()),
-                      SizedBox(width: 20),
+                      const SizedBox(width: 20),
                       GestureDetector(
                         onTap: () {
                           counter++;
@@ -144,30 +158,24 @@ class _DetailsState extends State<FoodDetails> {
                             color: Colors.black,
                             borderRadius: BorderRadius.circular(10),
                           ),
-                          child: Icon(Icons.add, color: Colors.white),
+                          child: const Icon(Icons.add, color: Colors.white),
                         ),
                       ),
                     ],
                   ),
                 ],
               ),
-              SizedBox(height: 20),
+              const SizedBox(height: 20),
               Text(
                 item['itemdetails'] ?? 'No details available',
                 style: TextWidget.LightTextFieldStyle(),
               ),
-              SizedBox(height: 10),
-              Row(
-                children: [
-                  Text("Delivery Time",
-                      style: TextWidget.semiBoldTextFieldStyle()),
-                  SizedBox(width: 35),
-                  Icon(Icons.alarm, color: Colors.black54),
-                  SizedBox(width: 5),
-                  Text("30 min", style: TextWidget.semiBoldTextFieldStyle()),
-                ],
+              const SizedBox(height: 10),
+              Text(
+                'Delivery Time: ${item['delivery_time'] != null ? formatDeliveryTime(item['delivery_time']) : "Not specified"}',
+                style: TextWidget.semiBoldTextFieldStyle(),
               ),
-              SizedBox(height: 20),
+              const SizedBox(height: 20),
               Padding(
                 padding: const EdgeInsets.only(bottom: 30),
                 child: Row(
@@ -188,14 +196,14 @@ class _DetailsState extends State<FoodDetails> {
                       },
                       child: Container(
                         width: MediaQuery.of(context).size.width / 2,
-                        padding: EdgeInsets.all(5),
+                        padding: const EdgeInsets.all(5),
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(10),
                           color: Colors.black,
                         ),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
+                          children: const [
                             Text(
                               "Add to cart",
                               style: TextStyle(

@@ -2,14 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:resturant_app/admin/itemdetailsAdmin.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-class SearchFoodItem extends StatefulWidget {
-  const SearchFoodItem({super.key});
+class FoodItems extends StatefulWidget {
+  const FoodItems({super.key});
 
   @override
-  State<SearchFoodItem> createState() => _SearchFoodItemState();
+  State<FoodItems> createState() => _FoodItemsState();
 }
 
-class _SearchFoodItemState extends State<SearchFoodItem> {
+class _FoodItemsState extends State<FoodItems> {
   final TextEditingController _searchController = TextEditingController();
   List<Map<String, dynamic>> allItems = []; // Store all items
   List<Map<String, dynamic>> searchResults = []; // Store filtered items
@@ -83,10 +83,11 @@ class _SearchFoodItemState extends State<SearchFoodItem> {
     return SafeArea(
       child: Scaffold(
         appBar: AppBar(
+          automaticallyImplyLeading: false,
           backgroundColor: Colors.black,
           centerTitle: true,
           title: const Text(
-            "Search Food Items",
+            "Food Items",
             style: TextStyle(color: Colors.white),
           ),
         ),
@@ -107,12 +108,25 @@ class _SearchFoodItemState extends State<SearchFoodItem> {
                 ),
                 onChanged: searchItems, // Trigger search on text change
               ),
-              SizedBox(height: 20),
+              SizedBox(height: 10),
               // Show loading indicator or results based on the state
               isLoading
                   ? CircularProgressIndicator() // Show loading indicator while searching
                   : searchResults.isEmpty
-                      ? Text("No items found.")
+                      ? Column(
+                          children: [
+                            Image.asset(
+                              "images/noitem.png",
+                              width: MediaQuery.of(context).size.width / 2,
+                              height: MediaQuery.of(context).size.height / 3,
+                            ),
+                            Text(
+                              "No items found.",
+                              style: TextStyle(
+                                  fontSize: 18, fontWeight: FontWeight.bold),
+                            ),
+                          ],
+                        )
                       : Expanded(
                           child: ListView.builder(
                             itemCount: searchResults.length,

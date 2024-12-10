@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:resturant_app/admin/bottomnavadmin.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:resturant_app/admin/homeAdmin.dart';
 
 class AdminLogin extends StatefulWidget {
   const AdminLogin({Key? key}) : super(key: key);
@@ -25,8 +24,6 @@ class _AdminLoginState extends State<AdminLogin> {
         email: EmailController.text.trim(),
         password: passwordController.text.trim(),
       );
-      print("Response: ${response}");
-      print("User: ${response.user}");
 
       if (response.user != null) {
         final userId = response.user!.id;

@@ -83,17 +83,44 @@ class _ProfileState extends State<Profile> {
   }
 
   void logout() async {
-    await supabase.auth.signOut();
-    if (userData?['role'] == "admin") {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => AdminLogin()),
-      );
-    } else {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => Login()),
-      );
+    // Show confirmation dialog
+    bool? exitConfirmed = await showDialog<bool>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Are you sure?'),
+          content: const Text('Do you want to log out?'),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(false); // User cancels
+              },
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(true); // User confirms
+              },
+              child: const Text('OK'),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (exitConfirmed == true) {
+      await supabase.auth.signOut();
+      if (userData?['role'] == "admin") {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => AdminLogin()),
+        );
+      } else {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => Login()),
+        );
+      }
     }
   }
 
@@ -209,7 +236,9 @@ class _ProfileState extends State<Profile> {
                             context,
                             MaterialPageRoute(
                                 builder: (context) => const EditProfileView()),
-                          );
+                          ).then((_) {
+                            _onRefresh();
+                          });
                         },
                         child: const Text('Edit Profile',
                             style: TextStyle(
