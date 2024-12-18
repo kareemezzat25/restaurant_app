@@ -1,14 +1,16 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_stripe/flutter_stripe.dart';
 import 'package:resturant_app/admin/admin_login.dart';
 import 'package:resturant_app/firebase_options.dart';
 import 'package:resturant_app/views/onBoard.dart';
+import 'package:resturant_app/widgets/app_constant.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 void main() async {
   // Ensure Flutter bindings are initialized
   WidgetsFlutterBinding.ensureInitialized();
-
+  Stripe.publishableKey = publishablekey;
   try {
     await Firebase.initializeApp(
       options: DefaultFirebaseOptions.currentPlatform,

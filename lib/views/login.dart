@@ -54,7 +54,7 @@ class _LoginState extends State<Login> {
           print("User data: $userData");
 
           if (userData != null && userData['role'] == 'user') {
-            _showSnackBar("Login successful!", Colors.green);
+            _showSnackBar("Login successfully!", Colors.green);
             Navigator.pushReplacement(
               context,
               MaterialPageRoute(

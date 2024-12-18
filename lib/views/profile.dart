@@ -198,20 +198,34 @@ class _ProfileState extends State<Profile> {
                     ),
                     const SizedBox(height: 20),
                     // Username in Card with icon
-                    cardrepeat(Icon(Icons.person),
-                        userData?['username'] ?? 'No Username'),
+                    cardrepeat(
+                        icon: Icon(Icons.person),
+                        label: 'username',
+                        message: userData?['username'] ?? 'No Username'),
                     const SizedBox(height: 8),
                     // Email in Card with icon
                     cardrepeat(
-                        Icon(Icons.email), (userData?['email'] ?? 'No Email')),
+                        icon: Icon(Icons.email),
+                        label: 'Email',
+                        message: (userData?['email'] ?? 'No Email')),
                     const SizedBox(height: 8),
 
                     if (userData?['role'] == "user") ...[
-                      cardrepeat(Icon(Icons.phone),
-                          userData?['phonenumber'] ?? 'No Phone number'),
+                      cardrepeat(
+                        icon: Icon(Icons.badge_sharp),
+                        label: 'UserId',
+                        message: '${userData?['user_id'] ?? 'No ID'}',
+                      ),
+                      cardrepeat(
+                          icon: Icon(Icons.phone),
+                          label: 'Phonenumber',
+                          message:
+                              userData?['phonenumber'] ?? 'No Phone number'),
                       const SizedBox(height: 8),
-                      cardrepeat(Icon(Icons.cake),
-                          userData?['datebirthday'] ?? 'No Birthdate'),
+                      cardrepeat(
+                          icon: Icon(Icons.cake),
+                          label: 'DateBirthday',
+                          message: userData?['datebirthday'] ?? 'No Birthdate'),
                       const SizedBox(height: 8),
                     ],
                     GestureDetector(
@@ -224,7 +238,8 @@ class _ProfileState extends State<Profile> {
                                       )));
                         },
                         child: cardrepeat(
-                            Icon(Icons.lock_reset), "Reset Password")),
+                            icon: Icon(Icons.lock_reset),
+                            message: "Reset Password")),
                     const SizedBox(height: 20),
                     Align(
                       alignment: Alignment.center,
@@ -254,7 +269,7 @@ class _ProfileState extends State<Profile> {
   }
 }
 
-Widget cardrepeat(Icon icon, String message) {
+Widget cardrepeat({required icon, String? label, required message}) {
   return Card(
     elevation: 5,
     shape: RoundedRectangleBorder(
@@ -262,7 +277,13 @@ Widget cardrepeat(Icon icon, String message) {
     ),
     child: ListTile(
       leading: icon,
-      title: Text(message),
+      title: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        if (label != null || label == '') ...[
+          Text(label!,
+              style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
+        ],
+        Text(message)
+      ]),
     ),
   );
 }

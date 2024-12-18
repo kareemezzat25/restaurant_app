@@ -38,7 +38,7 @@ class _DetailsState extends State<FoodDetails> {
           await Supabase.instance.client.from('cart').insert(addFoodToCart);
 
       if (response == null) {
-        _showSnackBar("Item added to cart successfully!", Colors.green);
+        _showSnackBar("Food added to cart", Colors.green);
       } else {
         _showSnackBar(
             "Failed to add item: ${response.error!.message}", Colors.red);

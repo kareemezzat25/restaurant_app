@@ -124,7 +124,7 @@ class _AddItemState extends State<AddItem> {
         const SnackBar(
           backgroundColor: Colors.green,
           content: Text(
-            "Item added successfully!",
+            "Item has been added successfully!",
             style: TextStyle(
               color: Colors.white,
               fontSize: 18,

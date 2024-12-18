@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:duration_picker/duration_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:resturant_app/admin/itemdetailsAdmin.dart';
@@ -22,6 +23,7 @@ class _EditItemState extends State<EditItem> {
   final ImagePicker _picker = ImagePicker();
   File? selectedImage;
   String? currentImageUrl;
+  Duration? selectedDuration;
 
   @override
   void initState() {
@@ -32,6 +34,20 @@ class _EditItemState extends State<EditItem> {
     detailController.text = widget.item['itemdetails'] ?? '';
     selectedCategory = widget.item['category'];
     currentImageUrl = widget.item['itemimage'];
+    selectedDuration = Duration(minutes: widget.item['delivery_time'] ?? 0);
+  }
+
+  Future<void> pickDuration() async {
+    final duration = await showDurationPicker(
+      context: context,
+      initialTime: const Duration(minutes: 0),
+    );
+
+    if (duration != null) {
+      setState(() {
+        selectedDuration = duration;
+      });
+    }
   }
 
   Future<void> getImage() async {
@@ -130,6 +146,7 @@ class _EditItemState extends State<EditItem> {
         'itemdetails': detailController.text,
         'category': selectedCategory,
         'itemimage': newImageUrl,
+        'delivery_time': selectedDuration?.inMinutes,
       }).eq('id', widget.item['id']); // Use the item's ID for updating
 
       ScaffoldMessenger.of(context).showSnackBar(
@@ -152,6 +169,7 @@ class _EditItemState extends State<EditItem> {
         'itemdetails': detailController.text,
         'category': selectedCategory,
         'itemimage': newImageUrl,
+        'delivery_time': selectedDuration?.inMinutes
       });
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -265,6 +283,31 @@ class _EditItemState extends State<EditItem> {
                 controller: priceController,
                 hintText: "Enter Item Price",
                 fillColor: const Color.fromARGB(255, 239, 239, 242),
+              ),
+              const SizedBox(height: 20),
+              const Text(
+                "Delivery Time",
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              ),
+              SizedBox(
+                height: 10,
+              ),
+              GestureDetector(
+                onTap: pickDuration,
+                child: Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(15),
+                  decoration: BoxDecoration(
+                    color: const Color.fromARGB(255, 239, 239, 242),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Text(
+                    selectedDuration != null
+                        ? "${selectedDuration!.inMinutes} Minutes"
+                        : "Select Delivery Time",
+                    style: const TextStyle(fontSize: 16),
+                  ),
+                ),
               ),
               const SizedBox(height: 30.0),
               const Text(

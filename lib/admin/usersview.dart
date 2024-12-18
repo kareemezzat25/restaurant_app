@@ -41,31 +41,128 @@ class _UsersviewState extends State<Usersview> {
     }
   }
 
-  void filterUsers(String? username, String? email, String? gender) {
+  void filterUsers(
+      {String? username, String? email, String? gender, String? userId}) {
     setState(() {
       filteredUsers = users.where((user) {
         final matchUsername = username == null ||
-                user['username']
-                    ?.toLowerCase()
-                    .contains(username.toLowerCase()) ??
-            false;
+            (user['username']?.toLowerCase() ?? '')
+                .contains(username.toLowerCase());
         final matchEmail = email == null ||
-                user['email']?.toLowerCase().contains(email.toLowerCase()) ??
-            false;
+            (user['email']?.toLowerCase() ?? '').contains(email.toLowerCase());
         final matchGender = gender == null ||
-            user['gender']?.toLowerCase() == gender.toLowerCase();
-        return matchUsername && matchEmail && matchGender;
+            (user['gender']?.toLowerCase() ?? '') == gender.toLowerCase();
+        final matchUserId = userId == null ||
+            (user['user_id']?.toString() ?? '').contains(userId);
+        return matchUsername && matchEmail && matchGender && matchUserId;
       }).toList();
     });
   }
 
-  void resetFilters() {
-    setState(() {
-      filteredUsers = users;
-    });
+  void showAddMoneyDialog(Map<String, dynamic> user) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text(
+            'Add Money for ${user['username'] ?? 'User'}',
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+          ),
+          content: const Text('Do you want to add money to this user?'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+                showEnterAmountDialog(user);
+              },
+              child: const Text('Add Money'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void showEnterAmountDialog(Map<String, dynamic> user) {
+    final TextEditingController amountController = TextEditingController();
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text(
+            'Enter Amount for ${user['username'] ?? 'User'}',
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+          ),
+          content: TextField(
+            controller: amountController,
+            keyboardType: TextInputType.number,
+            decoration: InputDecoration(
+              labelText: 'Amount',
+              border:
+                  OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () async {
+                final amount = double.tryParse(amountController.text.trim());
+                if (amount != null && amount > 0) {
+                  try {
+                    // اجلب القيمة الحالية من الحقل Wallet
+                    final currentWallet = user['wallet'] ?? 0.0;
+
+                    final updatedWallet = currentWallet + amount;
+                    print("updatedWallet:$updatedWallet");
+
+                    await supabase.from('users').update(
+                        {'wallet': updatedWallet}).eq('email', user['email']);
+
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(
+                            'Successfully added $amount to ${user['username']}\'s wallet.'),
+                      ),
+                    );
+
+                    setState(() {
+                      user['wallet'] = updatedWallet;
+                    });
+                  } catch (error) {
+                    print('Error updating wallet: $error');
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content:
+                            Text('Failed to update wallet. Please try again.'),
+                      ),
+                    );
+                  }
+                } else {
+                  // Show an error if the amount is invalid
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                        content: Text('Please enter a valid amount')),
+                  );
+                }
+              },
+              child: const Text('Add'),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   void showFilterSheet() {
+    String? userId;
     String? username;
     String? email;
     String? gender;
@@ -90,12 +187,36 @@ class _UsersviewState extends State<Usersview> {
               const SizedBox(height: 10),
               TextField(
                 decoration: InputDecoration(
+                  labelText: "User ID",
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+                onChanged: (value) {
+                  userId = value.trim();
+                  filterUsers(
+                      username: username,
+                      email: email,
+                      gender: gender,
+                      userId: userId);
+                },
+              ),
+              const SizedBox(height: 10),
+              TextField(
+                decoration: InputDecoration(
                   labelText: "Username",
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),
                 ),
-                onChanged: (value) => username = value.trim(),
+                onChanged: (value) {
+                  username = value.trim();
+                  filterUsers(
+                      username: username,
+                      email: email,
+                      gender: gender,
+                      userId: userId);
+                },
               ),
               const SizedBox(height: 10),
               TextField(
@@ -105,7 +226,14 @@ class _UsersviewState extends State<Usersview> {
                     borderRadius: BorderRadius.circular(12),
                   ),
                 ),
-                onChanged: (value) => email = value.trim(),
+                onChanged: (value) {
+                  email = value.trim();
+                  filterUsers(
+                      username: username,
+                      email: email,
+                      gender: gender,
+                      userId: userId);
+                },
               ),
               const SizedBox(height: 10),
               DropdownButtonFormField<String>(
@@ -119,33 +247,14 @@ class _UsersviewState extends State<Usersview> {
                   DropdownMenuItem(value: 'Male', child: Text("Male")),
                   DropdownMenuItem(value: 'Female', child: Text("Female")),
                 ],
-                onChanged: (value) => gender = value,
-              ),
-              const SizedBox(height: 20),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  ElevatedButton(
-                    style:
-                        ElevatedButton.styleFrom(backgroundColor: Colors.white),
-                    onPressed: () {
-                      resetFilters();
-                      Navigator.pop(context);
-                    },
-                    child: const Text("Reset",
-                        style: TextStyle(color: Color(0xff2C9CEE))),
-                  ),
-                  ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                        backgroundColor: Color(0xff2C9CEE)),
-                    onPressed: () {
-                      filterUsers(username, email, gender);
-                      Navigator.pop(context);
-                    },
-                    child: const Text("Apply",
-                        style: TextStyle(color: Colors.white)),
-                  ),
-                ],
+                onChanged: (value) {
+                  gender = value;
+                  filterUsers(
+                      username: username,
+                      email: email,
+                      gender: gender,
+                      userId: userId);
+                },
               ),
             ],
           ),
@@ -158,8 +267,10 @@ class _UsersviewState extends State<Usersview> {
   Widget build(BuildContext context) {
     return WillPopScope(
       onWillPop: () async {
-        resetFilters();
-        return false; // Prevents app exit
+        setState(() {
+          fetchUsers();
+        });
+        return false; // Allows going back
       },
       child: Scaffold(
         backgroundColor: Colors.white,
@@ -199,8 +310,8 @@ class _UsersviewState extends State<Usersview> {
                           width: MediaQuery.of(context).size.width / 2,
                           height: 150,
                         ),
-                        Text(
-                          ' No users found',
+                        const Text(
+                          'No users found',
                           style: TextStyle(
                               fontSize: 18, fontWeight: FontWeight.bold),
                         ),
@@ -212,57 +323,59 @@ class _UsersviewState extends State<Usersview> {
                     itemCount: filteredUsers.length,
                     itemBuilder: (context, index) {
                       final user = filteredUsers[index];
-                      return Card(
-                        color: const Color.fromARGB(255, 217, 233, 242),
-                        elevation: 10,
-                        margin: const EdgeInsets.symmetric(vertical: 8.0),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: Padding(
-                          padding: const EdgeInsets.all(16.0),
-                          child: Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              CircleAvatar(
-                                radius: 40,
-                                backgroundImage: user['imageurl'] != null &&
-                                        user['imageurl'].isNotEmpty
-                                    ? NetworkImage(user['imageurl'])
-                                    : const AssetImage('images/anonymous.png')
-                                        as ImageProvider,
-                              ),
-                              const SizedBox(width: 16),
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      user['username'] ?? 'Unknown',
-                                      style: const TextStyle(
-                                        fontSize: 18,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                    const SizedBox(height: 4),
-                                    Text(
-                                      user['email'] ?? 'No email provided',
-                                      style: const TextStyle(
-                                        color: Colors.grey,
-                                      ),
-                                    ),
-                                    const SizedBox(height: 4),
-                                    Text(
-                                      '${user['gender'] ?? 'N/A'}',
-                                    ),
-                                    const SizedBox(height: 4),
-                                    Text(
-                                      '${user['phonenumber'] ?? 'N/A'}',
-                                    ),
-                                  ],
+                      return GestureDetector(
+                        onTap: () => showAddMoneyDialog(user),
+                        child: Card(
+                          color: const Color.fromARGB(255, 217, 233, 242),
+                          elevation: 10,
+                          margin: const EdgeInsets.symmetric(vertical: 8.0),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Padding(
+                            padding: const EdgeInsets.all(16.0),
+                            child: Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                CircleAvatar(
+                                  radius: 40,
+                                  backgroundImage: user['imageurl'] != null &&
+                                          user['imageurl'].isNotEmpty
+                                      ? NetworkImage(user['imageurl'])
+                                      : const AssetImage('images/anonymous.png')
+                                          as ImageProvider,
                                 ),
-                              ),
-                            ],
+                                const SizedBox(width: 16),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        user['username'] ?? 'Unknown',
+                                        style: const TextStyle(
+                                          fontSize: 18,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 4),
+                                      Text(
+                                        user['email'] ?? 'No email provided',
+                                        style: const TextStyle(
+                                          color: Colors.grey,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 4),
+                                      Text(
+                                          'User ID: ${user['user_id'] ?? 'N/A'}'),
+                                      const SizedBox(height: 4),
+                                      Text(
+                                          'Gender: ${user['gender'] ?? 'N/A'}'),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
                         ),
                       );

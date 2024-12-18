@@ -24,6 +24,7 @@ class _EditProfileViewState extends State<EditProfileView> {
   DateTime? selectedDate; //
   final TextEditingController phoneController = TextEditingController();
   final TextEditingController usernameController = TextEditingController();
+  final TextEditingController userIdController = TextEditingController();
 
   String phoneNumber = '';
   String isoCode = 'US';
@@ -122,8 +123,9 @@ class _EditProfileViewState extends State<EditProfileView> {
 
         setState(() {
           userData = response;
-
           usernameController.text = response['username'] ?? '';
+          userIdController.text = response['user_id']?.toString() ?? '';
+
           selectedGender = response['gender'];
           selectedDate = DateTime.tryParse(response['datebirthday'] ?? '');
           showGenderCard = selectedGender == null || selectedGender!.isEmpty;
@@ -161,7 +163,32 @@ class _EditProfileViewState extends State<EditProfileView> {
 
   Future<void> saveProfile() async {
     try {
+      try {
+        // Query the users table for the entered user_id
+        final response = await supabase
+            .from('users')
+            .select('email')
+            .eq('user_id', userIdController.text)
+            .maybeSingle();
+
+        if (response != null && response['email'] != userData?['email']) {
+          // If a user with the same user_id exists and it's not the current user
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('User ID already exists. Please choose another.'),
+            ),
+          );
+          return; // Stop further execution
+        }
+      } catch (error) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error checking User ID: $error')),
+        );
+        return; // Stop further execution
+      }
+
       final updateData = {
+        'user_id': userIdController.text,
         'username': usernameController.text,
         'gender': selectedGender,
         'datebirthday': selectedDate?.toIso8601String(),
@@ -254,6 +281,27 @@ class _EditProfileViewState extends State<EditProfileView> {
                     ),
                   ),
                   const SizedBox(height: 16),
+                  const Text(
+                    'User ID:',
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 8),
+                  Card(
+                    elevation: 4,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.only(left: 12.0),
+                      child: TextField(
+                        controller: userIdController,
+                        decoration: const InputDecoration(
+                          border: InputBorder.none,
+                          hintText: 'Enter your user ID',
+                        ),
+                      ),
+                    ),
+                  ),
                   const Text(
                     'Username:',
                     style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
