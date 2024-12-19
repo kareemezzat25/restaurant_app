@@ -230,7 +230,9 @@ class _OrderState extends State<Order> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Cart"),
+        automaticallyImplyLeading: false,
+        title: const Text("Cart",
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 22)),
         centerTitle: true,
       ),
       body: isLoading

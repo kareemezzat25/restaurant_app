@@ -1,3 +1,4 @@
+import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:resturant_app/widgets/showitemButton.dart';
@@ -39,7 +40,7 @@ class _HomeState extends State<HomeView> {
       } else {
         setState(() {
           allItems = List<Map<String, dynamic>>.from(response);
-          filteredItems = allItems; // في البداية نعرض كل العناصر
+          filteredItems = allItems;
         });
       }
     } catch (e) {
@@ -67,9 +68,10 @@ class _HomeState extends State<HomeView> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        automaticallyImplyLeading: false,
         backgroundColor: Colors.transparent,
         centerTitle: true,
-        title: Text(
+        title: const Text(
           "Fcsu_resturant",
           style: TextStyle(
             fontFamily: "Hurricane",
@@ -95,7 +97,6 @@ class _HomeState extends State<HomeView> {
                       style: TextWidget.LightTextFieldStyle()),
                   SizedBox(height: 20),
                   Container(
-                    margin: EdgeInsets.only(right: 10),
                     child: showItem(),
                   ),
                 ],
@@ -211,9 +212,14 @@ class _HomeState extends State<HomeView> {
   }
 
   Widget showItem() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
+    return CarouselSlider(
+      options: CarouselOptions(
+        height: 100,
+        // Adjust height as needed
+        viewportFraction: 0.38,
+        autoPlay: false,
+      ),
+      items: [
         ShowItemButton(
           imagePath: "images/ice-cream.png",
           itemName: "Ice-cream",
@@ -244,6 +250,86 @@ class _HomeState extends State<HomeView> {
           isSelected: selectedCategory == "Salad",
           onTap: () {
             filterItemsByCategory("Salad");
+          },
+        ),
+        ShowItemButton(
+          imagePath: "images/apple-juice.png",
+          itemName: "juices",
+          isSelected: selectedCategory == "juices",
+          onTap: () {
+            filterItemsByCategory("juices");
+          },
+        ),
+        ShowItemButton(
+          imagePath: "images/sandwich.png",
+          itemName: "Sandwiches",
+          isSelected: selectedCategory == "Sandwiches",
+          onTap: () {
+            filterItemsByCategory("Sandwiches");
+          },
+        ),
+        ShowItemButton(
+          imagePath: "images/breakfast.png",
+          itemName: "Breakfast",
+          isSelected: selectedCategory == "Breakfast",
+          onTap: () {
+            filterItemsByCategory("Breakfast");
+          },
+        ),
+        ShowItemButton(
+          imagePath: "images/shawarma.png",
+          itemName: "Shawarma",
+          isSelected: selectedCategory == "Shawarma",
+          onTap: () {
+            filterItemsByCategory("Shawarma");
+          },
+        ),
+        ShowItemButton(
+          imagePath: "images/steak.png",
+          itemName: "Steak",
+          isSelected: selectedCategory == "Steak",
+          onTap: () {
+            filterItemsByCategory("Steak");
+          },
+        ),
+        ShowItemButton(
+          imagePath: "images/fried-chicken.png",
+          itemName: "FriedChicken",
+          isSelected: selectedCategory == "FriedChicken",
+          onTap: () {
+            filterItemsByCategory("FriedChicken");
+          },
+        ),
+        ShowItemButton(
+          imagePath: "images/seafood (1).png",
+          itemName: "Seafood",
+          isSelected: selectedCategory == "Seafood",
+          onTap: () {
+            filterItemsByCategory("Seafood");
+          },
+        ),
+        ShowItemButton(
+          imagePath: "images/spaghetti.png",
+          itemName: "Pastas",
+          isSelected: selectedCategory == "Pastas",
+          onTap: () {
+            filterItemsByCategory("Pastas");
+          },
+        ),
+        ShowItemButton(
+          imagePath: "images/donut.png",
+          itemName: "Desserts",
+          isSelected: selectedCategory == "Desserts",
+          onTap: () {
+            filterItemsByCategory("Desserts");
+          },
+        ),
+        ShowItemButton(
+          imagePath: "images/hot-drink.png",
+          itemName: "hot-drink",
+          isSelected: selectedCategory == "hot-drink",
+          onTap: () {
+            filterItemsByCategory("hot-drink");
           },
         ),
       ],

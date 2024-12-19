@@ -281,27 +281,30 @@ class _EditProfileViewState extends State<EditProfileView> {
                     ),
                   ),
                   const SizedBox(height: 16),
-                  const Text(
-                    'User ID:',
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 8),
-                  Card(
-                    elevation: 4,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
+                  if (userData?['role'] == "user") ...[
+                    const Text(
+                      'User ID:',
+                      style:
+                          TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                     ),
-                    child: Padding(
-                      padding: const EdgeInsets.only(left: 12.0),
-                      child: TextField(
-                        controller: userIdController,
-                        decoration: const InputDecoration(
-                          border: InputBorder.none,
-                          hintText: 'Enter your user ID',
+                    const SizedBox(height: 8),
+                    Card(
+                      elevation: 4,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.only(left: 12.0),
+                        child: TextField(
+                          controller: userIdController,
+                          decoration: const InputDecoration(
+                            border: InputBorder.none,
+                            hintText: 'Enter your user ID',
+                          ),
                         ),
                       ),
                     ),
-                  ),
+                  ],
                   const Text(
                     'Username:',
                     style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),

@@ -167,7 +167,7 @@ class _FoodItemsState extends State<FoodItems> {
                                           item['itemimage'] ?? '',
                                           width: 80,
                                           height: 80,
-                                          fit: BoxFit.cover,
+                                          fit: BoxFit.fill,
                                           errorBuilder:
                                               (context, error, stackTrace) {
                                             return Icon(Icons.error,

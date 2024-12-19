@@ -20,9 +20,10 @@ class ShowItemButton extends StatelessWidget {
     return GestureDetector(
       onTap: () => onTap(),
       child: Material(
-        elevation: 5,
+        elevation: 4,
         borderRadius: BorderRadius.circular(10),
         child: Container(
+          width: 120,
           padding: EdgeInsets.all(10),
           decoration: BoxDecoration(
             color: isSelected ? Colors.black : Colors.white,
