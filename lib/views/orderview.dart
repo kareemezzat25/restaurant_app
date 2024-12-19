@@ -79,6 +79,143 @@ class _OrderState extends State<Order> {
     calculateTotal();
   }
 
+  Future<void> handleCheckout() async {
+    final user = Supabase.instance.client.auth.currentUser;
+
+    if (user == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("User not logged in")),
+      );
+      return;
+    }
+
+    try {
+      // Fetch the user's wallet balance
+      final userResponse = await Supabase.instance.client
+          .from('users')
+          .select('wallet')
+          .eq('email', user.email!)
+          .single();
+
+      if (userResponse == null || userResponse['wallet'] == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Failed to fetch wallet balance")),
+        );
+        return;
+      }
+
+      final walletBalance = userResponse['wallet'];
+
+      if (walletBalance < total) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Insufficient wallet balance")),
+        );
+        return;
+      }
+
+      final remainingBalance = walletBalance - total;
+
+      // Show confirmation dialog
+      showDialog(
+        context: context,
+        barrierDismissible: false, // Prevent dismissing by tapping outside
+        builder: (BuildContext context) {
+          return Stack(
+            children: [
+              // This ensures that the background content (cart items) stays visible
+              Opacity(
+                opacity: 0.9,
+                child: Container(
+                  color: Colors.black.withOpacity(0.5), // Dim the background
+                ),
+              ),
+              Center(
+                child: AlertDialog(
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  title: const Text(
+                    "Confirm Checkout",
+                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                  ),
+                  content: Text(
+                    "The total price is \$${total.toStringAsFixed(2)}.\n"
+                    "Wallet after deduction: \$${remainingBalance.toStringAsFixed(2)}.\n"
+                    "Do you want to proceed?",
+                    style: const TextStyle(fontSize: 16, color: Colors.grey),
+                  ),
+                  actions: [
+                    TextButton(
+                      onPressed: () {
+                        Navigator.of(context).pop(false); // Close dialog
+                      },
+                      child: const Text(
+                        "Cancel",
+                        style: TextStyle(color: Colors.red, fontSize: 16),
+                      ),
+                    ),
+                    TextButton(
+                      onPressed: () async {
+                        Navigator.of(context).pop(true); // Proceed
+                        await processCheckout(user, remainingBalance);
+                      },
+                      child: const Text(
+                        "OK",
+                        style: TextStyle(color: Colors.green, fontSize: 16),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          );
+        },
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Error: $e")),
+      );
+    }
+  }
+
+  Future<void> processCheckout(User user, double remainingBalance) async {
+    try {
+      // Deduct the total price from wallet
+      await Supabase.instance.client.from('users').update({
+        'wallet': remainingBalance,
+      }).eq('email', user.email!);
+
+      // Store cart items in history table with user_id
+      for (var item in cartItems) {
+        await Supabase.instance.client.from('history').insert({
+          'user_id': user.id,
+          'itemname': item['item_name'],
+          'quantity': item['quantity'],
+          'totalprice': item['total_price'],
+        });
+      }
+
+      // Clear the cart
+      await Supabase.instance.client
+          .from('cart')
+          .delete()
+          .eq('user_id', user.id);
+
+      setState(() {
+        cartItems.clear();
+        total = 0.0;
+      });
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Checkout successful")),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Error: $e")),
+      );
+    }
+  }
+
   Future<void> deleteItem(int index) async {
     final item = cartItems[index];
 
@@ -227,9 +364,7 @@ class _OrderState extends State<Order> {
                           ElevatedButton(
                             style: ElevatedButton.styleFrom(
                                 backgroundColor: Colors.black),
-                            onPressed: () {
-                              // Handle checkout
-                            },
+                            onPressed: handleCheckout,
                             child: const Text(
                               "CHECKOUT",
                               style: TextStyle(
