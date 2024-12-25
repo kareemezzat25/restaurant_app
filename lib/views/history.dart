@@ -3,7 +3,8 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:intl/intl.dart';
 
 class History extends StatefulWidget {
-  const History({super.key});
+  String? userid;
+  History({super.key, this.userid});
 
   @override
   _HistoryState createState() => _HistoryState();
@@ -13,6 +14,7 @@ class _HistoryState extends State<History> {
   List<Map<String, dynamic>> historyItems = [];
   double totalAmount = 0.0;
   bool isLoading = true;
+  String? userRole;
 
   @override
   void initState() {
@@ -24,19 +26,42 @@ class _HistoryState extends State<History> {
     setState(() {
       isLoading = true;
     });
+    final currentUser = Supabase.instance.client.auth.currentUser;
 
-    final user = Supabase.instance.client.auth.currentUser;
-    print("user:${user!.id}");
-
-    if (user != null) {
+    if (currentUser != null) {
       try {
-        // Fetch history items
-        final historyResponse = await Supabase.instance.client
-            .from('history')
-            .select('itemname,quantity,totalprice,created_at')
-            .eq('user_id', user.id);
+        String? userIdToFetch = widget.userid ?? currentUser.id;
+        print("userid first:$userIdToFetch");
+        final userResponse = await Supabase.instance.client
+            .from('users')
+            .select('role')
+            .eq('email', currentUser.email!)
+            .single();
 
-        print("historyresponse:$historyResponse");
+        final userRoleFetched = userResponse["role"];
+        setState(() {
+          userRole = userRoleFetched;
+        });
+        print("userid:$userIdToFetch");
+        late final historyResponse;
+        if (userRoleFetched == 'admin' && widget.userid != null) {
+          userIdToFetch = widget.userid;
+          final useridauthResponse = await Supabase.instance.client
+              .from('users')
+              .select('idAuth')
+              .eq('user_id', userIdToFetch!)
+              .single();
+          final userIdAuth = useridauthResponse['idAuth'] as String?;
+          historyResponse = await Supabase.instance.client
+              .from('history')
+              .select('itemname,quantity,totalprice,created_at')
+              .eq('user_id', userIdAuth!);
+        } else {
+          historyResponse = await Supabase.instance.client
+              .from('history')
+              .select('itemname,quantity,totalprice,created_at')
+              .eq('user_id', currentUser.id);
+        }
 
         if (historyResponse != null && historyResponse.isNotEmpty) {
           List<Map<String, dynamic>> items =
@@ -89,6 +114,119 @@ class _HistoryState extends State<History> {
     }
   }
 
+  void showEnterAmountDialog(Map<String, dynamic> user) {
+    final TextEditingController amountController = TextEditingController();
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          backgroundColor: Colors.white,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+          title: Text(
+            'Enter Amount for ${user['username'] ?? 'User'}',
+            style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                controller: amountController,
+                keyboardType: TextInputType.number,
+                decoration: InputDecoration(
+                  labelText: 'Amount',
+                  labelStyle: TextStyle(color: Colors.grey[600]),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderSide: const BorderSide(color: Colors.blue, width: 2),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+              ),
+            ],
+          ),
+          actionsAlignment: MainAxisAlignment.center,
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              style: TextButton.styleFrom(
+                foregroundColor: Colors.white,
+                backgroundColor: Colors.red,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+              ),
+              child: const Text(
+                'Cancel',
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+              ),
+            ),
+            ElevatedButton(
+              onPressed: () async {
+                final amount = double.tryParse(amountController.text.trim());
+                if (amount != null && amount > 0) {
+                  try {
+                    final currentWallet = user['wallet'] ?? 0.0;
+                    final updatedWallet = currentWallet + amount;
+
+                    await Supabase.instance.client.from('users').update(
+                        {'wallet': updatedWallet}).eq('email', user['email']);
+
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(
+                          'Successfully added \$${amount.toStringAsFixed(2)} to ${user['username']}\'s wallet.',
+                        ),
+                        backgroundColor: Colors.green,
+                      ),
+                    );
+
+                    setState(() {
+                      user['wallet'] = updatedWallet;
+                    });
+
+                    Navigator.pop(context); // اغلاق الـ Dialog مباشرة
+                  } catch (error) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text(
+                          'Failed to update wallet. Please try again.',
+                        ),
+                        backgroundColor: Colors.red,
+                      ),
+                    );
+                  }
+                } else {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Please enter a valid amount.'),
+                      backgroundColor: Colors.orange,
+                    ),
+                  );
+                }
+              },
+              style: ElevatedButton.styleFrom(
+                foregroundColor: Colors.white,
+                backgroundColor: Colors.blue,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+              ),
+              child: const Text(
+                'Add',
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -133,7 +271,6 @@ class _HistoryState extends State<History> {
                                 width: 60,
                                 height: 80,
                                 decoration: BoxDecoration(
-                                  border: Border.all(width: 1),
                                   borderRadius: BorderRadius.circular(8),
                                   image: DecorationImage(
                                     image:
@@ -165,8 +302,45 @@ class _HistoryState extends State<History> {
                         },
                       ),
                     ),
+                    if (userRole == 'admin')
+                      Padding(
+                        padding: EdgeInsets.only(top: 10),
+                        child: ElevatedButton(
+                          onPressed: () async {
+                            final userResponse = await Supabase.instance.client
+                                .from('users')
+                                .select()
+                                .eq('user_id', widget.userid!)
+                                .single();
+
+                            if (userResponse != null) {
+                              showEnterAmountDialog(userResponse);
+                            } else {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text("User not found."),
+                                ),
+                              );
+                            }
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.blue,
+                            padding: const EdgeInsets.symmetric(
+                                vertical: 16, horizontal: 24),
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12)),
+                          ),
+                          child: const Text(
+                            "Add Money",
+                            style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold),
+                          ),
+                        ),
+                      ),
                     Padding(
-                      padding: const EdgeInsets.all(16.0),
+                      padding: const EdgeInsets.symmetric(vertical: 8.0),
                       child: Text(
                         "Total Amount: \$${totalAmount.toStringAsFixed(2)}",
                         style: const TextStyle(

@@ -301,14 +301,6 @@ class _HomeState extends State<HomeView> {
           },
         ),
         ShowItemButton(
-          imagePath: "images/seafood (1).png",
-          itemName: "Seafood",
-          isSelected: selectedCategory == "Seafood",
-          onTap: () {
-            filterItemsByCategory("Seafood");
-          },
-        ),
-        ShowItemButton(
           imagePath: "images/spaghetti.png",
           itemName: "Pastas",
           isSelected: selectedCategory == "Pastas",

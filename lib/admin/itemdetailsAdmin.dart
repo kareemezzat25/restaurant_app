@@ -157,8 +157,8 @@ class _DetailsState extends State<ItemDetails> {
                         child: Image.network(
                           item['itemimage'] ?? '',
                           width: MediaQuery.of(context).size.width,
-                          height: MediaQuery.of(context).size.height / 2,
-                          fit: BoxFit.cover,
+                          height: MediaQuery.of(context).size.height / 2.5,
+                          fit: BoxFit.fill,
                           errorBuilder: (context, error, stackTrace) {
                             return Image.asset(
                               'images/salad2.png',

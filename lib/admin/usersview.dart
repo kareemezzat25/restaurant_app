@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:resturant_app/views/history.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class Usersview extends StatefulWidget {
@@ -117,7 +118,6 @@ class _UsersviewState extends State<Usersview> {
                 final amount = double.tryParse(amountController.text.trim());
                 if (amount != null && amount > 0) {
                   try {
-                    // اجلب القيمة الحالية من الحقل Wallet
                     final currentWallet = user['wallet'] ?? 0.0;
 
                     final updatedWallet = currentWallet + amount;
@@ -324,7 +324,12 @@ class _UsersviewState extends State<Usersview> {
                     itemBuilder: (context, index) {
                       final user = filteredUsers[index];
                       return GestureDetector(
-                        onTap: () => showAddMoneyDialog(user),
+                        onTap: () => Navigator.push(context,
+                            MaterialPageRoute(builder: (context) {
+                          return History(
+                            userid: user['user_id'],
+                          );
+                        })),
                         child: Card(
                           color: const Color.fromARGB(255, 217, 233, 242),
                           elevation: 10,
@@ -367,10 +372,10 @@ class _UsersviewState extends State<Usersview> {
                                       ),
                                       const SizedBox(height: 4),
                                       Text(
-                                          'User ID: ${user['user_id'] ?? 'N/A'}'),
+                                          'User ID: ${user['user_id'] ?? 'None'}'),
                                       const SizedBox(height: 4),
                                       Text(
-                                          'Gender: ${user['gender'] ?? 'N/A'}'),
+                                          'Gender: ${user['gender'] ?? 'None'}'),
                                     ],
                                   ),
                                 ),

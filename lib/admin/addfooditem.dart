@@ -23,7 +23,6 @@ class _AddItemState extends State<AddItem> {
     'Shawarma',
     'Steak',
     'FriedChicken',
-    'Seafood',
     'Pastas',
     'Desserts',
     'hot-drink'
@@ -176,6 +175,7 @@ class _AddItemState extends State<AddItem> {
     return SafeArea(
       child: Scaffold(
         appBar: AppBar(
+          automaticallyImplyLeading: false,
           backgroundColor: Colors.black,
           elevation: 0,
           centerTitle: true,
