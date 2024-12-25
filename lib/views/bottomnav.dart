@@ -1,6 +1,6 @@
 import "package:curved_navigation_bar/curved_navigation_bar.dart";
-import "package:date_format/date_format.dart";
 import "package:flutter/material.dart";
+import "package:font_awesome_flutter/font_awesome_flutter.dart";
 import "package:resturant_app/views/history.dart";
 import "package:resturant_app/views/home.dart";
 import "package:resturant_app/views/orderview.dart";
@@ -55,15 +55,17 @@ class _BottomNavState extends State<BottomNav> {
               color: Colors.white,
             ),
             Icon(
-              Icons.shopping_bag_outlined,
+              FontAwesomeIcons.cartShopping,
               color: Colors.white,
             ),
-            Icon(
-              Icons.history_edu_rounded,
-              color: Colors.white,
+            Center(
+              child: Icon(
+                FontAwesomeIcons.rectangleList,
+                color: Colors.white,
+              ),
             ),
             Icon(
-              Icons.wallet_outlined,
+              FontAwesomeIcons.creditCard,
               color: Colors.white,
             ),
             Icon(

@@ -1,8 +1,7 @@
-import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
+import 'package:resturant_app/widgets/listItems.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:resturant_app/widgets/showitemButton.dart';
-import 'package:resturant_app/widgets/textwidget.dart';
 import 'package:resturant_app/views/fooddetails.dart';
 
 class HomeView extends StatefulWidget {
@@ -16,7 +15,7 @@ class _HomeState extends State<HomeView> {
   List<Map<String, dynamic>> allItems = [];
   List<Map<String, dynamic>> filteredItems = [];
   bool isLoading = true;
-  String selectedCategory = "";
+  TextEditingController searchController = TextEditingController();
 
   @override
   void initState() {
@@ -33,7 +32,6 @@ class _HomeState extends State<HomeView> {
       final response = await Supabase.instance.client.from('item').select('*');
 
       if (response == null || response.isEmpty) {
-        print("No items found.");
         setState(() {
           allItems = [];
         });
@@ -44,7 +42,6 @@ class _HomeState extends State<HomeView> {
         });
       }
     } catch (e) {
-      print("Error fetching items: $e");
       setState(() {
         allItems = [];
       });
@@ -55,62 +52,122 @@ class _HomeState extends State<HomeView> {
     });
   }
 
-  void filterItemsByCategory(String category) {
+  void applyFilters() {
+    String query = searchController.text.toLowerCase();
     setState(() {
-      selectedCategory = category;
-      filteredItems = category.isEmpty
-          ? allItems
-          : allItems.where((item) => item['category'] == category).toList();
+      filteredItems = allItems.where((item) {
+        final itemName = item['itemname']?.toLowerCase() ?? '';
+        final itemCategory = item['category']?.toLowerCase() ?? '';
+        final itemDetails = item['itemdetails']?.toLowerCase() ?? '';
+        final itemPrice = item['itemprice']?.toString().toLowerCase() ?? '';
+
+        return itemName.contains(query) ||
+            itemCategory.contains(query) ||
+            itemDetails.contains(query) ||
+            itemPrice.contains(query);
+      }).toList();
     });
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Color(0xFFF9F9F9),
       appBar: AppBar(
         automaticallyImplyLeading: false,
-        backgroundColor: Colors.transparent,
+        elevation: 0,
+        flexibleSpace: Container(
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              //[Color(0xFFFF8966), Color(0xFFFF5F6D)]
+              colors: [Color(0xFFFF8966), Color(0xFFFF5F6D)],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+          ),
+        ),
         centerTitle: true,
         title: const Text(
-          "Fcsu_resturant",
+          "Fcsu Restaurant",
           style: TextStyle(
             fontFamily: "Hurricane",
-            color: Colors.black,
+            color: Colors.white,
             fontSize: 24,
             fontWeight: FontWeight.bold,
           ),
         ),
-        actions: [Icon(Icons.search)],
       ),
       body: SingleChildScrollView(
         child: Column(
           children: [
-            Container(
-              margin: EdgeInsets.only(left: 10, bottom: 10),
+            Padding(
+              padding: const EdgeInsets.all(15.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  SizedBox(height: 20),
-                  Text("Delicious Food",
-                      style: TextWidget.HeadLineTextFieldStyle()),
-                  Text("Discover and get Great Food",
-                      style: TextWidget.LightTextFieldStyle()),
-                  SizedBox(height: 20),
-                  Container(
-                    child: showItem(),
+                  const Text(
+                    "Delicious Food",
+                    style: TextStyle(
+                      fontSize: 28,
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xFF333333),
+                    ),
+                  ),
+                  const SizedBox(height: 5),
+                  const Text(
+                    "Discover and enjoy great meals",
+                    style: TextStyle(
+                      fontSize: 18,
+                      color: Colors.grey,
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                  TextField(
+                    controller: searchController,
+                    onChanged: (value) => applyFilters(),
+                    decoration: InputDecoration(
+                      hintText: "Search for items...",
+                      filled: true,
+                      fillColor: Colors.white,
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(30),
+                        borderSide: BorderSide.none,
+                      ),
+                      prefixIcon: const Icon(Icons.search, color: Colors.grey),
+                      suffixIcon: IconButton(
+                        icon: const Icon(Icons.clear, color: Colors.grey),
+                        onPressed: () {
+                          searchController.clear();
+                          applyFilters();
+                        },
+                      ),
+                    ),
+                    style: const TextStyle(fontSize: 16),
                   ),
                 ],
               ),
             ),
+            ShowItemWidget(
+              selectedCategory: "",
+              onCategorySelected: (category) {
+                setState(() {
+                  applyFilters();
+                });
+              },
+            ),
+            const SizedBox(height: 10),
             isLoading
-                ? Center(
-                    child: CircularProgressIndicator(),
-                  )
+                ? const Center(child: CircularProgressIndicator())
                 : filteredItems.isEmpty
-                    ? Text("No items found for this category.")
+                    ? const Center(
+                        child: Text(
+                          "No items found for this search.",
+                          style: TextStyle(color: Colors.grey),
+                        ),
+                      )
                     : ListView.builder(
                         shrinkWrap: true,
-                        physics: NeverScrollableScrollPhysics(),
+                        physics: const NeverScrollableScrollPhysics(),
                         itemCount: filteredItems.length,
                         itemBuilder: (context, index) {
                           final item = filteredItems[index];
@@ -119,44 +176,40 @@ class _HomeState extends State<HomeView> {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (context) => FoodDetails(
-                                    item: item, // Pass item details
-                                  ),
+                                  builder: (context) => FoodDetails(item: item),
                                 ),
                               );
                             },
                             child: Container(
-                              margin: EdgeInsets.symmetric(
-                                  vertical: 8, horizontal: 8),
-                              padding: EdgeInsets.all(10),
+                              margin: const EdgeInsets.all(8.0),
+                              padding: const EdgeInsets.all(12.0),
                               decoration: BoxDecoration(
                                 color: Colors.white,
                                 borderRadius: BorderRadius.circular(12),
                                 boxShadow: [
                                   BoxShadow(
                                     color: Colors.grey.withOpacity(0.2),
-                                    blurRadius: 4,
-                                    offset: Offset(0, 4),
+                                    blurRadius: 6,
+                                    offset: const Offset(0, 4),
                                   ),
                                 ],
                               ),
                               child: Row(
                                 children: [
                                   ClipRRect(
-                                    borderRadius: BorderRadius.circular(8),
+                                    borderRadius: BorderRadius.circular(12),
                                     child: Image.network(
                                       item['itemimage'] ?? '',
                                       width: 80,
                                       height: 80,
                                       fit: BoxFit.cover,
                                       errorBuilder:
-                                          (context, error, stackTrace) {
-                                        return Icon(Icons.error,
-                                            color: Colors.red);
-                                      },
+                                          (context, error, stackTrace) =>
+                                              const Icon(Icons.error,
+                                                  color: Colors.red),
                                     ),
                                   ),
-                                  SizedBox(width: 16),
+                                  const SizedBox(width: 16),
                                   Expanded(
                                     child: Column(
                                       crossAxisAlignment:
@@ -164,23 +217,25 @@ class _HomeState extends State<HomeView> {
                                       children: [
                                         Text(
                                           item['itemname'] ?? 'Unknown Name',
-                                          style: TextStyle(
-                                            fontWeight: FontWeight.bold,
+                                          style: const TextStyle(
                                             fontSize: 16,
+                                            fontWeight: FontWeight.bold,
                                           ),
                                         ),
-                                        SizedBox(height: 4),
+                                        const SizedBox(height: 4),
                                         Text(
                                           item['category'] ??
                                               'Unknown Category',
                                           style: TextStyle(
+                                            fontSize: 14,
                                             color: Colors.grey[600],
                                           ),
                                         ),
-                                        SizedBox(height: 4),
+                                        const SizedBox(height: 4),
                                         Text(
                                           "\$${item['itemprice']?.toStringAsFixed(2) ?? 'N/A'}",
-                                          style: TextStyle(
+                                          style: const TextStyle(
+                                            fontSize: 14,
                                             color: Colors.green,
                                             fontWeight: FontWeight.bold,
                                           ),
@@ -188,10 +243,9 @@ class _HomeState extends State<HomeView> {
                                         const SizedBox(height: 4),
                                         Text(
                                           item['itemdetails'] ?? '',
-                                          maxLines: 2, // Limit to 2 lines
-                                          overflow: TextOverflow
-                                              .ellipsis, // Ellipsis for overflow
-                                          style: TextStyle(
+                                          maxLines: 2,
+                                          overflow: TextOverflow.ellipsis,
+                                          style: const TextStyle(
                                             fontSize: 12,
                                             color: Colors.black54,
                                           ),
@@ -208,123 +262,6 @@ class _HomeState extends State<HomeView> {
           ],
         ),
       ),
-    );
-  }
-
-  Widget showItem() {
-    return CarouselSlider(
-      options: CarouselOptions(
-        height: 100,
-        // Adjust height as needed
-        viewportFraction: 0.38,
-        autoPlay: false,
-      ),
-      items: [
-        ShowItemButton(
-          imagePath: "images/ice-cream.png",
-          itemName: "Ice-cream",
-          isSelected: selectedCategory == "Ice-cream",
-          onTap: () {
-            filterItemsByCategory("Ice-cream");
-          },
-        ),
-        ShowItemButton(
-          imagePath: "images/burger.png",
-          itemName: "Burger",
-          isSelected: selectedCategory == "Burger",
-          onTap: () {
-            filterItemsByCategory("Burger");
-          },
-        ),
-        ShowItemButton(
-          imagePath: "images/pizza.png",
-          itemName: "Pizza",
-          isSelected: selectedCategory == "Pizza",
-          onTap: () {
-            filterItemsByCategory("Pizza");
-          },
-        ),
-        ShowItemButton(
-          imagePath: "images/salad.png",
-          itemName: "Salad",
-          isSelected: selectedCategory == "Salad",
-          onTap: () {
-            filterItemsByCategory("Salad");
-          },
-        ),
-        ShowItemButton(
-          imagePath: "images/apple-juice.png",
-          itemName: "juices",
-          isSelected: selectedCategory == "juices",
-          onTap: () {
-            filterItemsByCategory("juices");
-          },
-        ),
-        ShowItemButton(
-          imagePath: "images/sandwich.png",
-          itemName: "Sandwiches",
-          isSelected: selectedCategory == "Sandwiches",
-          onTap: () {
-            filterItemsByCategory("Sandwiches");
-          },
-        ),
-        ShowItemButton(
-          imagePath: "images/breakfast.png",
-          itemName: "Breakfast",
-          isSelected: selectedCategory == "Breakfast",
-          onTap: () {
-            filterItemsByCategory("Breakfast");
-          },
-        ),
-        ShowItemButton(
-          imagePath: "images/shawarma.png",
-          itemName: "Shawarma",
-          isSelected: selectedCategory == "Shawarma",
-          onTap: () {
-            filterItemsByCategory("Shawarma");
-          },
-        ),
-        ShowItemButton(
-          imagePath: "images/steak.png",
-          itemName: "Steak",
-          isSelected: selectedCategory == "Steak",
-          onTap: () {
-            filterItemsByCategory("Steak");
-          },
-        ),
-        ShowItemButton(
-          imagePath: "images/fried-chicken.png",
-          itemName: "FriedChicken",
-          isSelected: selectedCategory == "FriedChicken",
-          onTap: () {
-            filterItemsByCategory("FriedChicken");
-          },
-        ),
-        ShowItemButton(
-          imagePath: "images/spaghetti.png",
-          itemName: "Pastas",
-          isSelected: selectedCategory == "Pastas",
-          onTap: () {
-            filterItemsByCategory("Pastas");
-          },
-        ),
-        ShowItemButton(
-          imagePath: "images/donut.png",
-          itemName: "Desserts",
-          isSelected: selectedCategory == "Desserts",
-          onTap: () {
-            filterItemsByCategory("Desserts");
-          },
-        ),
-        ShowItemButton(
-          imagePath: "images/hot-drink.png",
-          itemName: "hot-drink",
-          isSelected: selectedCategory == "hot-drink",
-          onTap: () {
-            filterItemsByCategory("hot-drink");
-          },
-        ),
-      ],
     );
   }
 }

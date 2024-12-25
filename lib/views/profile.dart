@@ -88,25 +88,69 @@ class _ProfileState extends State<Profile> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text('Are you sure?'),
-          content: const Text('Do you want to log out?'),
+          backgroundColor: Colors.white,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+          title: const Text(
+            'Are you sure?',
+            style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+              color: Colors.black87,
+            ),
+          ),
+          content: const Text(
+            'Do you want to log out?',
+            style: TextStyle(
+              fontSize: 16,
+              color: Colors.black54,
+            ),
+          ),
           actions: <Widget>[
             TextButton(
+              style: TextButton.styleFrom(
+                backgroundColor:
+                    Colors.red, // Background color for Cancel button
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+              ),
               onPressed: () {
                 Navigator.of(context).pop(false); // User cancels
               },
-              child: const Text('Cancel'),
+              child: const Text(
+                'Cancel',
+                style: TextStyle(
+                  color: Colors.white, // Text color for Cancel button
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
             ),
             TextButton(
+              style: TextButton.styleFrom(
+                backgroundColor: Colors.blue, // Background color for OK button
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+              ),
               onPressed: () {
                 Navigator.of(context).pop(true); // User confirms
               },
-              child: const Text('OK'),
+              child: const Text(
+                'OK',
+                style: TextStyle(
+                  color: Colors.white, // Text color for OK button
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
             ),
           ],
         );
       },
     );
+
+    // Perform logout if user confirmed
 
     if (exitConfirmed == true) {
       await supabase.auth.signOut();

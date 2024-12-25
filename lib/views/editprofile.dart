@@ -4,7 +4,6 @@ import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:intl_phone_number_input/intl_phone_number_input.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:date_format/date_format.dart';
 
 class EditProfileView extends StatefulWidget {
   const EditProfileView({super.key});
@@ -117,7 +116,7 @@ class _EditProfileViewState extends State<EditProfileView> {
           print('Invalid phone number: $e');
           setState(() {
             isoCode = 'US';
-            phoneNumber = phone.replaceFirst('+1', ''); // معالجة الرقم يدويًا
+            phoneNumber = phone.replaceFirst('+1', '');
           });
         }
 

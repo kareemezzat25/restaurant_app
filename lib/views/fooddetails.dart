@@ -104,8 +104,8 @@ class _DetailsState extends State<FoodDetails> {
                   borderRadius: BorderRadius.circular(20),
                   child: Image.network(
                     item['itemimage'] ?? '',
-                    width: MediaQuery.of(context).size.width,
-                    height: MediaQuery.of(context).size.height / 2.5,
+                    width: MediaQuery.of(context).size.width / 1.1,
+                    height: MediaQuery.of(context).size.height / 2.8,
                     fit: BoxFit.fill, // Show the full image
                     errorBuilder: (context, error, stackTrace) =>
                         const Icon(Icons.error, color: Colors.red),
@@ -116,18 +116,20 @@ class _DetailsState extends State<FoodDetails> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        item['itemname'] ?? '',
-                        style: TextWidget.boldTextFieldStyle(),
-                      ),
-                      Text(
-                        item['category'] ?? '',
-                        style: TextWidget.semiBoldTextFieldStyle(),
-                      ),
-                    ],
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          item['itemname'] ?? '',
+                          style: TextWidget.boldTextFieldStyle(),
+                        ),
+                        Text(
+                          item['category'] ?? '',
+                          style: TextWidget.semiBoldTextFieldStyle(),
+                        ),
+                      ],
+                    ),
                   ),
                   Row(
                     children: [
@@ -201,9 +203,9 @@ class _DetailsState extends State<FoodDetails> {
                           borderRadius: BorderRadius.circular(10),
                           color: Colors.black,
                         ),
-                        child: Row(
+                        child: const Row(
                           mainAxisAlignment: MainAxisAlignment.center,
-                          children: const [
+                          children: [
                             Text(
                               "Add to cart",
                               style: TextStyle(

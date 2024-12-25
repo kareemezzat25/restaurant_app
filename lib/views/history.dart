@@ -42,7 +42,8 @@ class _HistoryState extends State<History> {
         setState(() {
           userRole = userRoleFetched;
         });
-        print("userid:$userIdToFetch");
+        print("user role:$userRoleFetched");
+        print("userid:$userIdToFetch  || userid:${widget.userid}");
         late final historyResponse;
         if (userRoleFetched == 'admin' && widget.userid != null) {
           userIdToFetch = widget.userid;
@@ -83,8 +84,8 @@ class _HistoryState extends State<History> {
               // change time to the local time
               createdAt = createdAt.toLocal();
 
-              item['formatted_created_at'] =
-                  DateFormat('yyyy-MM-dd – HH:mm').format(createdAt);
+              item['formatted_created_at'] = DateFormat('yyyy-MM-dd–h:mm a')
+                  .format(createdAt); // format h m am/pm
             }
           }
           print("Items After:$items");
@@ -189,7 +190,7 @@ class _HistoryState extends State<History> {
                       user['wallet'] = updatedWallet;
                     });
 
-                    Navigator.pop(context); // اغلاق الـ Dialog مباشرة
+                    Navigator.pop(context);
                   } catch (error) {
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(
@@ -293,7 +294,7 @@ class _HistoryState extends State<History> {
                                   Text(
                                       "Total Price: \$${item['totalprice']?.toStringAsFixed(2) ?? '0.00'}"),
                                   Text(
-                                    "Purchased on: ${item['formatted_created_at'] ?? 'N/A'}",
+                                    "Order Date: ${item['formatted_created_at'] ?? 'N/A'}",
                                   ),
                                 ],
                               ),

@@ -26,8 +26,8 @@ class _DetailsState extends State<ItemDetails> {
     if (minutes < 60) {
       return '$minutes minutes';
     } else {
-      final hours = minutes ~/ 60; // عدد الساعات
-      final remainingMinutes = minutes % 60; // الدقائق المتبقية
+      final hours = minutes ~/ 60;
+      final remainingMinutes = minutes % 60;
       if (remainingMinutes == 0) {
         return '$hours hours';
       } else {
@@ -68,7 +68,7 @@ class _DetailsState extends State<ItemDetails> {
     final imageUrl = item['itemimage'] ?? '';
     print("Imageurl : $imageUrl");
     try {
-      final bucketName = 'food_images'; // اسم الباكت
+      final bucketName = 'food_images';
 
       final imageName = Uri.parse(imageUrl).pathSegments.last;
       print("Image Name: $imageName");
@@ -109,7 +109,7 @@ class _DetailsState extends State<ItemDetails> {
             ),
           ),
         );
-        Navigator.pop(context, true); // العودة إلى الصفحة مع تحديث البيانات
+        Navigator.pop(context, true);
       }
     } catch (e) {
       print("Error deleting item: $e");
@@ -156,8 +156,8 @@ class _DetailsState extends State<ItemDetails> {
                             20), // Circular border for image
                         child: Image.network(
                           item['itemimage'] ?? '',
-                          width: MediaQuery.of(context).size.width,
-                          height: MediaQuery.of(context).size.height / 2.5,
+                          width: MediaQuery.of(context).size.width / 1.1,
+                          height: MediaQuery.of(context).size.height / 2.8,
                           fit: BoxFit.fill,
                           errorBuilder: (context, error, stackTrace) {
                             return Image.asset(

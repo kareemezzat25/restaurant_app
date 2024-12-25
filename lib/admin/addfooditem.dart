@@ -131,8 +131,7 @@ class _AddItemState extends State<AddItem> {
         'itemdetails': detailcontroller.text,
         'category': value,
         'itemimage': imageUrl,
-        'delivery_time':
-            selectedDuration!.inMinutes, // صيغة ISO 8601 للمدة الزمنية
+        'delivery_time': selectedDuration!.inMinutes,
       });
 
       ScaffoldMessenger.of(context).showSnackBar(

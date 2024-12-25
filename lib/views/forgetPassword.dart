@@ -47,20 +47,20 @@ class _ForgotPasswordState extends State<ForgotPassword> {
           ),
           child: Column(
             children: [
-              SizedBox(
+              const SizedBox(
                 height: 70.0,
               ),
               Container(
                 alignment: Alignment.topCenter,
-                child: Text(
+                child: const Text(
                   "Forget Password?",
                   style: TextStyle(fontSize: 30.0, fontWeight: FontWeight.bold),
                 ),
               ),
-              SizedBox(
+              const SizedBox(
                 height: 10.0,
               ),
-              Text(
+              const Text(
                 textAlign: TextAlign.center,
                 "Enter your email and we will send a link to reset your password.",
                 style: TextStyle(
@@ -71,11 +71,11 @@ class _ForgotPasswordState extends State<ForgotPassword> {
                   child: Form(
                       key: _formkey,
                       child: Padding(
-                        padding: EdgeInsets.only(left: 10.0),
+                        padding: const EdgeInsets.only(left: 10.0),
                         child: ListView(
                           children: [
                             Container(
-                              padding: EdgeInsets.only(left: 10.0),
+                              padding: const EdgeInsets.only(left: 10.0),
                               decoration: BoxDecoration(
                                 border: Border.all(width: 2.0),
                                 borderRadius: BorderRadius.circular(30),
@@ -99,7 +99,7 @@ class _ForgotPasswordState extends State<ForgotPassword> {
                                     border: InputBorder.none),
                               ),
                             ),
-                            SizedBox(
+                            const SizedBox(
                               height: 30.0,
                             ),
                             Padding(
@@ -116,11 +116,11 @@ class _ForgotPasswordState extends State<ForgotPassword> {
                                 },
                                 child: Container(
                                   width: 100,
-                                  padding: EdgeInsets.all(10),
+                                  padding: const EdgeInsets.all(10),
                                   decoration: BoxDecoration(
-                                      color: Color(0xff2C9CEE),
+                                      color: const Color(0xff2C9CEE),
                                       borderRadius: BorderRadius.circular(18)),
-                                  child: Center(
+                                  child: const Center(
                                     child: Text(
                                       "Reset Password",
                                       style: TextStyle(
@@ -132,20 +132,20 @@ class _ForgotPasswordState extends State<ForgotPassword> {
                                 ),
                               ),
                             ),
-                            SizedBox(
+                            const SizedBox(
                               height: 20.0,
                             ),
                             if (widget.message)
                               Row(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
-                                  Text(
+                                  const Text(
                                     "Don't have an account?",
                                     style: TextStyle(
                                         fontSize: 18.0,
                                         fontWeight: FontWeight.bold),
                                   ),
-                                  SizedBox(
+                                  const SizedBox(
                                     width: 5.0,
                                   ),
                                   GestureDetector(
@@ -153,7 +153,8 @@ class _ForgotPasswordState extends State<ForgotPassword> {
                                       Navigator.push(
                                           context,
                                           MaterialPageRoute(
-                                              builder: (context) => SignUp()));
+                                              builder: (context) =>
+                                                  const SignUp()));
                                     },
                                     child: const Text(
                                       "SignUp",
