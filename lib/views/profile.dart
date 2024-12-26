@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:photo_view/photo_view.dart';
-import 'package:resturant_app/admin/admin_login.dart';
 import 'package:resturant_app/views/editprofile.dart';
 import 'package:resturant_app/views/forgetPassword.dart';
 import 'package:resturant_app/views/login.dart';
@@ -154,17 +153,10 @@ class _ProfileState extends State<Profile> {
 
     if (exitConfirmed == true) {
       await supabase.auth.signOut();
-      if (userData?['role'] == "admin") {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => AdminLogin()),
-        );
-      } else {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => Login()),
-        );
-      }
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => Login()),
+      );
     }
   }
 

@@ -26,12 +26,14 @@ class _HistoryState extends State<History> {
     setState(() {
       isLoading = true;
     });
+
     final currentUser = Supabase.instance.client.auth.currentUser;
 
     if (currentUser != null) {
       try {
         String? userIdToFetch = widget.userid ?? currentUser.id;
         print("userid first:$userIdToFetch");
+
         final userResponse = await Supabase.instance.client
             .from('users')
             .select('role')
@@ -39,11 +41,16 @@ class _HistoryState extends State<History> {
             .single();
 
         final userRoleFetched = userResponse["role"];
+        if (!mounted)
+          return; // Check if the widget is still mounted before calling setState
+
         setState(() {
           userRole = userRoleFetched;
         });
+
         print("user role:$userRoleFetched");
         print("userid:$userIdToFetch  || userid:${widget.userid}");
+
         late final historyResponse;
         if (userRoleFetched == 'admin' && widget.userid != null) {
           userIdToFetch = widget.userid;
@@ -53,6 +60,7 @@ class _HistoryState extends State<History> {
               .eq('user_id', userIdToFetch!)
               .single();
           final userIdAuth = useridauthResponse['idAuth'] as String?;
+
           historyResponse = await Supabase.instance.client
               .from('history')
               .select('itemname,quantity,totalprice,created_at')
@@ -68,7 +76,6 @@ class _HistoryState extends State<History> {
           List<Map<String, dynamic>> items =
               List<Map<String, dynamic>>.from(historyResponse);
 
-          print("Items before:$items");
           for (var item in items) {
             final itemDetailsResponse = await Supabase.instance.client
                 .from('item')
@@ -88,7 +95,9 @@ class _HistoryState extends State<History> {
                   .format(createdAt); // format h m am/pm
             }
           }
-          print("Items After:$items");
+
+          if (!mounted)
+            return; // Check if the widget is still mounted before calling setState
 
           setState(() {
             historyItems = items;
@@ -99,12 +108,18 @@ class _HistoryState extends State<History> {
             isLoading = false;
           });
         } else {
+          if (!mounted)
+            return; // Check if the widget is still mounted before calling setState
+
           setState(() {
             historyItems = [];
             isLoading = false;
           });
         }
       } catch (error) {
+        if (!mounted)
+          return; // Check if the widget is still mounted before calling setState
+
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text("Error fetching history: $error")),
         );
@@ -307,23 +322,7 @@ class _HistoryState extends State<History> {
                       Padding(
                         padding: EdgeInsets.only(top: 10),
                         child: ElevatedButton(
-                          onPressed: () async {
-                            final userResponse = await Supabase.instance.client
-                                .from('users')
-                                .select()
-                                .eq('user_id', widget.userid!)
-                                .single();
-
-                            if (userResponse != null) {
-                              showEnterAmountDialog(userResponse);
-                            } else {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text("User not found."),
-                                ),
-                              );
-                            }
-                          },
+                          onPressed: () async {},
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.blue,
                             padding: const EdgeInsets.symmetric(

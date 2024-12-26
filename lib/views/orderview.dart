@@ -122,7 +122,6 @@ class _OrderState extends State<Order> {
         builder: (BuildContext context) {
           return Stack(
             children: [
-              // This ensures that the background content (cart items) stays visible
               Opacity(
                 opacity: 0.9,
                 child: Container(
@@ -230,9 +229,23 @@ class _OrderState extends State<Order> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        flexibleSpace: Container(
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              //[Color(0xFFFF8966), Color(0xFFFF5F6D)]
+              colors: [Color(0xFFFF8966), Color(0xFFFF5F6D)],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+          ),
+        ),
+        elevation: 0,
         automaticallyImplyLeading: false,
         title: const Text("Cart",
-            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 22)),
+            style: TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+                fontSize: 22)),
         centerTitle: true,
       ),
       body: isLoading
@@ -244,9 +257,11 @@ class _OrderState extends State<Order> {
                     children: [
                       Image.asset('images/empty-cart.png', height: 100),
                       const SizedBox(height: 10),
-                      const Text("No item in cart.",
+                      const Text("Your cart is empty!",
                           style: TextStyle(
-                              fontSize: 18, fontWeight: FontWeight.bold)),
+                              color: Colors.grey,
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold)),
                     ],
                   ),
                 )
@@ -261,8 +276,11 @@ class _OrderState extends State<Order> {
                             key: Key(item['id'].toString()),
                             direction: DismissDirection.endToStart,
                             background: Container(
-                              color: Colors.red,
                               alignment: Alignment.centerRight,
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(10),
+                                color: Colors.red,
+                              ),
                               padding:
                                   const EdgeInsets.symmetric(horizontal: 20),
                               child:
@@ -272,14 +290,18 @@ class _OrderState extends State<Order> {
                               deleteItem(index);
                             },
                             child: Card(
-                              margin: const EdgeInsets.all(10),
+                              elevation: 4,
+                              margin: const EdgeInsets.symmetric(
+                                  horizontal: 16, vertical: 8),
+                              shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(15)),
                               child: ListTile(
                                 leading: Container(
-                                  width: 50,
-                                  height: 50,
+                                  width: 65,
+                                  height: 65,
                                   decoration: BoxDecoration(
                                     border: Border.all(
-                                        color: Colors.grey, width: 2),
+                                        color: Color(0xFFFF6E73), width: 2),
                                     borderRadius: BorderRadius.circular(8),
                                     image: DecorationImage(
                                       image: NetworkImage(
@@ -298,7 +320,8 @@ class _OrderState extends State<Order> {
                                 subtitle: Text(
                                   "\$${item['total_price']?.toStringAsFixed(2) ?? '0.00'}",
                                   style: const TextStyle(
-                                    fontWeight: FontWeight.bold,
+                                    color: Color(0xFFCC4C5A),
+                                    fontWeight: FontWeight.w600,
                                     fontSize: 14,
                                   ),
                                 ),
@@ -306,6 +329,7 @@ class _OrderState extends State<Order> {
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
                                     IconButton(
+                                      color: Color(0xFFCC4C5A),
                                       icon: const Icon(Icons.remove),
                                       onPressed: () {
                                         updateQuantity(
@@ -314,6 +338,7 @@ class _OrderState extends State<Order> {
                                     ),
                                     Text("${item['quantity'] ?? 0}"),
                                     IconButton(
+                                      color: Color(0xFFCC4C5A),
                                       icon: const Icon(Icons.add),
                                       onPressed: () {
                                         updateQuantity(
@@ -338,9 +363,12 @@ class _OrderState extends State<Order> {
                               Expanded(
                                 child: TextField(
                                   decoration: InputDecoration(
-                                    labelText: "Discount Code",
+                                    hintText: "Enter Discount Code",
+                                    filled: true,
+                                    fillColor: Colors.grey[200],
                                     border: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(10),
+                                      borderSide: BorderSide.none,
                                     ),
                                   ),
                                 ),
@@ -350,12 +378,18 @@ class _OrderState extends State<Order> {
                                 onPressed: () {
                                   // Logic to apply discount
                                 },
-                                child: const Text("Apply"),
+                                style: ElevatedButton.styleFrom(
+                                    backgroundColor: Color(0xFFFF6E73),
+                                    foregroundColor: Colors.white),
+                                child: const Text("Apply",
+                                    style:
+                                        TextStyle(fontWeight: FontWeight.bold)),
                               ),
                             ],
                           ),
                           const SizedBox(height: 10),
                           Text(
+                            textAlign: TextAlign.center,
                             "Total: \$${total.toStringAsFixed(2)}",
                             style: const TextStyle(
                               fontSize: 18,
@@ -365,11 +399,18 @@ class _OrderState extends State<Order> {
                           const SizedBox(height: 10),
                           ElevatedButton(
                             style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors.black),
+                              padding: const EdgeInsets.symmetric(vertical: 15),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              backgroundColor: Color(0xFFFF6E73),
+                            ),
                             onPressed: handleCheckout,
                             child: const Text(
                               "CHECKOUT",
                               style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
                                 color: Colors.white,
                               ),
                             ),

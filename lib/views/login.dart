@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:resturant_app/admin/bottomnavadmin.dart';
 import 'package:resturant_app/service/auth.dart';
 import 'package:resturant_app/views/forgetPassword.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -61,8 +62,14 @@ class _LoginState extends State<Login> {
                 builder: (context) => BottomNav(),
               ),
             );
-          } else {
-            _showSnackBar("You are not authenticted.", Colors.red);
+          } else if (userData != null && userData['role'] == 'admin') {
+            _showSnackBar("Login successful! Welcome Admin.", Colors.green);
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => BottomNavAdmin(),
+              ),
+            );
           }
         } catch (error) {
           print("Error fetching user data: $error");
