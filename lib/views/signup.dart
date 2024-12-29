@@ -28,17 +28,16 @@ class _SignUpState extends State<SignUp> {
     final supabase = Supabase.instance.client;
 
     try {
-      // store email and password in auth
       final response = await supabase.auth.signUp(
         email: emailController.text.trim(),
         password: passwordController.text.trim(),
       );
-
       if (response.user != null) {
         await supabase.from('users').insert({
           'username': usernameController.text.trim(),
           'email': emailController.text.trim(),
           'password': passwordController.text.trim(),
+          'idAuth': response.user?.id,
           'role': 'user',
         });
 
@@ -46,7 +45,7 @@ class _SignUpState extends State<SignUp> {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => HomeView(),
+            builder: (context) => BottomNav(),
           ),
         );
       } else {
@@ -71,41 +70,32 @@ class _SignUpState extends State<SignUp> {
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
-        resizeToAvoidBottomInset:
-            true, // Automatically adjusts for the keyboard
+        backgroundColor: Colors.white,
+        resizeToAvoidBottomInset: true,
         body: SingleChildScrollView(
           child: Padding(
             padding:
-                const EdgeInsets.symmetric(horizontal: 16.0, vertical: 100.0),
+                const EdgeInsets.symmetric(horizontal: 16.0, vertical: 140.0),
             child: Form(
               key: formKey,
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  SizedBox(height: 20),
-                  const SizedBox(height: 20),
                   const Text(
-                    'Create your account',
+                    'Create Your Account',
                     textAlign: TextAlign.center,
                     style: TextStyle(
-                      fontSize: 18,
+                      fontSize: 24,
                       fontWeight: FontWeight.bold,
                       color: Colors.black,
                     ),
                   ),
                   const SizedBox(height: 30),
-                  TextFormField(
+                  _buildTextFormField(
                     controller: usernameController,
-                    decoration: InputDecoration(
-                      labelText: 'Username',
-                      prefixIcon: Icon(
-                        Icons.person,
-                      ),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(16),
-                      ),
-                    ),
+                    labelText: 'Username',
+                    icon: Icons.person,
                     validator: (value) {
                       if (value == null || value.isEmpty) {
                         return 'Please enter your username';
@@ -114,17 +104,10 @@ class _SignUpState extends State<SignUp> {
                     },
                   ),
                   const SizedBox(height: 20),
-                  TextFormField(
+                  _buildTextFormField(
                     controller: emailController,
-                    decoration: InputDecoration(
-                      labelText: 'Email',
-                      prefixIcon: Icon(
-                        Icons.email,
-                      ),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(16),
-                      ),
-                    ),
+                    labelText: 'Email',
+                    icon: Icons.email,
                     keyboardType: TextInputType.emailAddress,
                     validator: (value) {
                       if (value == null || value.isEmpty) {
@@ -137,27 +120,20 @@ class _SignUpState extends State<SignUp> {
                     },
                   ),
                   const SizedBox(height: 20),
-                  TextFormField(
+                  _buildTextFormField(
                     controller: passwordController,
+                    labelText: 'Password',
+                    icon: Icons.lock,
                     obscureText: _isObscure,
-                    decoration: InputDecoration(
-                      labelText: 'Password',
-                      prefixIcon: Icon(
-                        Icons.lock,
+                    suffixIcon: IconButton(
+                      icon: Icon(
+                        _isObscure ? Icons.visibility : Icons.visibility_off,
                       ),
-                      suffixIcon: IconButton(
-                        icon: Icon(
-                          _isObscure ? Icons.visibility : Icons.visibility_off,
-                        ),
-                        onPressed: () {
-                          setState(() {
-                            _isObscure = !_isObscure;
-                          });
-                        },
-                      ),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(16),
-                      ),
+                      onPressed: () {
+                        setState(() {
+                          _isObscure = !_isObscure;
+                        });
+                      },
                     ),
                     validator: (value) {
                       if (value == null || value.isEmpty) {
@@ -170,52 +146,55 @@ class _SignUpState extends State<SignUp> {
                     },
                   ),
                   const SizedBox(height: 30),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 20.0),
-                    child: ElevatedButton(
-                      onPressed: () {
-                        if (formKey.currentState!.validate()) {
-                          signup();
-                        }
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Color(0xFF273671),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(24),
-                        ),
-                        padding: const EdgeInsets.symmetric(vertical: 14),
+                  ElevatedButton(
+                    onPressed: () {
+                      if (formKey.currentState!.validate()) {
+                        signup();
+                      }
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF273671),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(24),
                       ),
-                      child: const Text(
-                        'Sign Up',
-                        style: TextStyle(fontSize: 18, color: Colors.white),
-                      ),
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                    ),
+                    child: const Text(
+                      'Sign Up',
+                      style: TextStyle(fontSize: 18, color: Colors.white),
                     ),
                   ),
-                  const SizedBox(height: 30),
+                  const SizedBox(height: 20),
                   Container(
-                    margin: EdgeInsets.symmetric(horizontal: 40),
+                    width: double.infinity,
+                    padding: EdgeInsets.symmetric(vertical: 6),
                     decoration: BoxDecoration(
-                        color: Colors.white70,
-                        borderRadius: BorderRadius.circular(12)),
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(24),
+                      border: Border.all(color: Colors.grey.shade300),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.grey.withOpacity(0.2),
+                          spreadRadius: 2,
+                          blurRadius: 5,
+                          offset: const Offset(0, 3),
+                        ),
+                      ],
+                    ),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Image.asset(
+                          "images/google_logo.png",
                           height: 45,
                           width: 45,
-                          "images/google_logo.png", // Replace with the correct path
                           fit: BoxFit.contain,
                         ),
-                        const SizedBox(
-                            width: 10), // Space between image and text
+                        const SizedBox(width: 10),
                         GestureDetector(
                           onTap: () async {
-                            await _authService.signInWithGoogle(context);
-                            Navigator.pushReplacement(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => BottomNav()),
-                            );
+                            // Start the Google Sign-In process
+                            await AuthService().signInWithGoogle(context);
                           },
                           child: const Text(
                             'Sign In with Google',
@@ -229,28 +208,31 @@ class _SignUpState extends State<SignUp> {
                       ],
                     ),
                   ),
-                  SizedBox(height: 40),
+                  const SizedBox(height: 40),
                   Center(
                     child: RichText(
                       text: TextSpan(
                         text: 'Already have an account? ',
                         style: const TextStyle(
-                            color: Colors.black,
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold),
+                          color: Colors.black,
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
                         children: [
                           TextSpan(
                             text: 'Login',
                             style: const TextStyle(
-                                color: Color(0xFF273671),
-                                fontWeight: FontWeight.bold,
-                                fontSize: 16),
+                              color: Color(0xFF273671),
+                              fontWeight: FontWeight.bold,
+                              fontSize: 16,
+                            ),
                             recognizer: TapGestureRecognizer()
                               ..onTap = () {
                                 Navigator.pushReplacement(
-                                    context,
-                                    MaterialPageRoute(
-                                        builder: (context) => Login()));
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) => Login()),
+                                );
                               },
                           ),
                         ],
@@ -263,6 +245,33 @@ class _SignUpState extends State<SignUp> {
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildTextFormField({
+    required TextEditingController controller,
+    required String labelText,
+    required IconData icon,
+    TextInputType keyboardType = TextInputType.text,
+    bool obscureText = false,
+    Widget? suffixIcon,
+    String? Function(String?)? validator,
+  }) {
+    return TextFormField(
+      controller: controller,
+      keyboardType: keyboardType,
+      obscureText: obscureText,
+      decoration: InputDecoration(
+        labelText: labelText,
+        prefixIcon: Icon(icon, color: Colors.black),
+        suffixIcon: suffixIcon,
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(16),
+        ),
+        filled: true,
+        fillColor: Colors.white,
+      ),
+      validator: validator,
     );
   }
 }

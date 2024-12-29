@@ -15,6 +15,8 @@ class _HomeState extends State<HomeView> {
   List<Map<String, dynamic>> allItems = [];
   List<Map<String, dynamic>> filteredItems = [];
   bool isLoading = true;
+  String selectedCategory = "";
+
   TextEditingController searchController = TextEditingController();
 
   @override
@@ -24,6 +26,7 @@ class _HomeState extends State<HomeView> {
   }
 
   Future<void> fetchAllItems() async {
+    if (!mounted) return;
     setState(() {
       isLoading = true;
     });
@@ -31,24 +34,35 @@ class _HomeState extends State<HomeView> {
     try {
       final response = await Supabase.instance.client.from('item').select('*');
 
-      if (response == null || response.isEmpty) {
-        setState(() {
+      if (!mounted) return;
+
+      setState(() {
+        if (response == null || response.isEmpty) {
           allItems = [];
-        });
-      } else {
-        setState(() {
+        } else {
           allItems = List<Map<String, dynamic>>.from(response);
           filteredItems = allItems;
-        });
-      }
+        }
+      });
     } catch (e) {
+      if (!mounted) return;
       setState(() {
         allItems = [];
       });
     }
 
+    if (!mounted) return; //
     setState(() {
       isLoading = false;
+    });
+  }
+
+  void filterItemsByCategory(String category) {
+    setState(() {
+      selectedCategory = category;
+      filteredItems = category.isEmpty
+          ? allItems
+          : allItems.where((item) => item['category'] == category).toList();
     });
   }
 
@@ -148,13 +162,8 @@ class _HomeState extends State<HomeView> {
               ),
             ),
             ShowItemWidget(
-              selectedCategory: "",
-              onCategorySelected: (category) {
-                setState(() {
-                  applyFilters();
-                });
-              },
-            ),
+                selectedCategory: selectedCategory,
+                onCategorySelected: filterItemsByCategory),
             const SizedBox(height: 10),
             isLoading
                 ? const Center(child: CircularProgressIndicator())

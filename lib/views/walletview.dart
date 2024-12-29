@@ -22,13 +22,12 @@ class WalletState extends State<Wallet> {
   @override
   void initState() {
     super.initState();
-    _fetchWalletBalance(); // جلب الرصيد من Supabase
+    _fetchWalletBalance();
   }
 
-  // جلب الرصيد من Supabase
   Future<void> _fetchWalletBalance() async {
     final response = await Supabase.instance.client
-        .from('users') // اسم الجدول
+        .from('users')
         .select('wallet')
         .eq('email', Supabase.instance.client.auth.currentUser!.email as String)
         .single();

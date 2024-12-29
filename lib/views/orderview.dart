@@ -296,18 +296,17 @@ class _OrderState extends State<Order> {
                               shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(15)),
                               child: ListTile(
-                                leading: Container(
-                                  width: 65,
-                                  height: 65,
-                                  decoration: BoxDecoration(
-                                    border: Border.all(
-                                        color: Color(0xFFFF6E73), width: 2),
-                                    borderRadius: BorderRadius.circular(8),
-                                    image: DecorationImage(
-                                      image: NetworkImage(
-                                          item['item_image'] ?? ''),
-                                      fit: BoxFit.cover,
-                                    ),
+                                leading: ClipRRect(
+                                  borderRadius: BorderRadius.circular(12),
+                                  child: Image.network(
+                                    item['item_image'] ?? '',
+                                    width: 80,
+                                    height: 80,
+                                    fit: BoxFit.fill,
+                                    errorBuilder:
+                                        (context, error, stackTrace) =>
+                                            const Icon(Icons.error,
+                                                color: Colors.red),
                                   ),
                                 ),
                                 title: Text(

@@ -1,7 +1,5 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:google_sign_in/google_sign_in.dart';
 import 'package:resturant_app/admin/bottomnavadmin.dart';
 import 'package:resturant_app/service/auth.dart';
 import 'package:resturant_app/views/forgetPassword.dart';
@@ -26,7 +24,6 @@ class _LoginState extends State<Login> {
   final formKey = GlobalKey<FormState>();
   Future signInWithGoogle() async {
     await _authService.signInWithGoogle(context);
-    // Navigate to BottomNav
     Navigator.pushReplacement(
       context,
       MaterialPageRoute(builder: (context) => BottomNav()),
@@ -81,7 +78,6 @@ class _LoginState extends State<Login> {
             "Login failed. Please check your credentials.", Colors.red);
       }
     } catch (e) {
-      // في حالة وجود خطأ أثناء تسجيل الدخول
       print("Error during login: $e");
       _showSnackBar("An error occurred: $e", Colors.red);
     }
@@ -99,12 +95,11 @@ class _LoginState extends State<Login> {
     );
   }
 
-  // Google Sign-In
-
   @override
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
+        backgroundColor: Colors.white,
         resizeToAvoidBottomInset:
             true, // Automatically adjusts for the keyboard
         body: SingleChildScrollView(
@@ -119,10 +114,10 @@ class _LoginState extends State<Login> {
                 children: [
                   const SizedBox(height: 20),
                   const Text(
-                    'Login to your Account',
+                    'Login To Your Account',
                     textAlign: TextAlign.center,
                     style: TextStyle(
-                      fontSize: 18,
+                      fontSize: 24,
                       fontWeight: FontWeight.bold,
                       color: Colors.black,
                     ),
@@ -197,47 +192,59 @@ class _LoginState extends State<Login> {
                     ),
                   ),
                   const SizedBox(height: 20),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 20.0),
-                    child: ElevatedButton(
-                      onPressed: () {
-                        if (formKey.currentState!.validate()) {
-                          userLogin();
-                        }
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF273671),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(24),
-                        ),
-                        padding: const EdgeInsets.symmetric(vertical: 14),
+                  ElevatedButton(
+                    onPressed: () {
+                      if (formKey.currentState!.validate()) {
+                        userLogin();
+                      }
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF273671),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(24),
                       ),
-                      child: const Text(
-                        'Login',
-                        style: TextStyle(fontSize: 18, color: Colors.white),
-                      ),
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                    ),
+                    child: const Text(
+                      'Login',
+                      style: TextStyle(fontSize: 18, color: Colors.white),
                     ),
                   ),
-                  const SizedBox(height: 30),
+                  const SizedBox(height: 20),
                   Container(
-                    margin: EdgeInsets.symmetric(horizontal: 40),
+                    width: double.infinity,
+                    padding: EdgeInsets.symmetric(vertical: 6),
                     decoration: BoxDecoration(
-                        color: Colors.white70,
-                        borderRadius: BorderRadius.circular(12)),
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(24),
+                      border: Border.all(color: Colors.grey.shade300),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.grey.withOpacity(0.2),
+                          spreadRadius: 2,
+                          blurRadius: 5,
+                          offset: const Offset(0, 3),
+                        ),
+                      ],
+                    ),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Image.asset(
+                          "images/google_logo.png",
                           height: 45,
                           width: 45,
-                          "images/google_logo.png", // Replace with the correct path
                           fit: BoxFit.contain,
                         ),
-                        const SizedBox(
-                            width: 10), // Space between image and text
+                        const SizedBox(width: 10),
                         GestureDetector(
-                          onTap: () {
-                            signInWithGoogle();
+                          onTap: () async {
+                            await _authService.signInWithGoogle(context);
+                            Navigator.pushReplacement(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => BottomNav()),
+                            );
                           },
                           child: const Text(
                             'Sign In with Google',

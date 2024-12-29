@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:photo_view/photo_view.dart';
 import 'package:resturant_app/views/editprofile.dart';
 import 'package:resturant_app/views/forgetPassword.dart';
@@ -16,7 +15,6 @@ class Profile extends StatefulWidget {
 class _ProfileState extends State<Profile> {
   final SupabaseClient supabase = Supabase.instance.client;
   Map<String, dynamic>? userData;
-  final ImagePicker _picker = ImagePicker();
   bool isLoading = true;
 
   @override
@@ -40,49 +38,25 @@ class _ProfileState extends State<Profile> {
           isLoading = false;
         });
       } else {
-        print('No authenticated user found.');
         setState(() {
           isLoading = false;
         });
       }
     } catch (error) {
-      print('Error fetching user data: $error');
       setState(() {
         isLoading = false;
       });
     }
   }
 
-  Widget showZoomedAvatar(String imageUrl) {
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.black,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.white),
-          onPressed: () {
-            Navigator.pop(context);
-          },
-        ),
-      ),
-      body: Container(
-        color: Colors.black,
-        width: MediaQuery.of(context).size.width,
-        child: Center(
-          child: SizedBox(
-            height: 400,
-            child: PhotoView(
-              imageProvider: NetworkImage(imageUrl),
-              minScale: PhotoViewComputedScale.contained,
-              maxScale: PhotoViewComputedScale.covered * 2,
-            ),
-          ),
-        ),
-      ),
-    );
+  Future<void> _onRefresh() async {
+    setState(() {
+      isLoading = true;
+    });
+    await fetchUserData();
   }
 
-  void logout() async {
-    // Show confirmation dialog
+  Future<void> logout() async {
     bool? exitConfirmed = await showDialog<bool>(
       context: context,
       builder: (BuildContext context) {
@@ -109,8 +83,7 @@ class _ProfileState extends State<Profile> {
           actions: <Widget>[
             TextButton(
               style: TextButton.styleFrom(
-                backgroundColor:
-                    Colors.red, // Background color for Cancel button
+                backgroundColor: Colors.red,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(8),
                 ),
@@ -121,14 +94,14 @@ class _ProfileState extends State<Profile> {
               child: const Text(
                 'Cancel',
                 style: TextStyle(
-                  color: Colors.white, // Text color for Cancel button
+                  color: Colors.white,
                   fontWeight: FontWeight.bold,
                 ),
               ),
             ),
             TextButton(
               style: TextButton.styleFrom(
-                backgroundColor: Colors.blue, // Background color for OK button
+                backgroundColor: Colors.blue,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(8),
                 ),
@@ -139,7 +112,7 @@ class _ProfileState extends State<Profile> {
               child: const Text(
                 'OK',
                 style: TextStyle(
-                  color: Colors.white, // Text color for OK button
+                  color: Colors.white,
                   fontWeight: FontWeight.bold,
                 ),
               ),
@@ -149,22 +122,13 @@ class _ProfileState extends State<Profile> {
       },
     );
 
-    // Perform logout if user confirmed
-
     if (exitConfirmed == true) {
       await supabase.auth.signOut();
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => Login()),
+        MaterialPageRoute(builder: (context) => const Login()),
       );
     }
-  }
-
-  Future<void> _onRefresh() async {
-    setState(() {
-      isLoading = true; // Show loading while fetching
-    });
-    await fetchUserData();
   }
 
   @override
@@ -172,133 +136,97 @@ class _ProfileState extends State<Profile> {
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
-        title: const Text('Profile',
-            style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
+        title: const Text(
+          'Profile',
+          style: TextStyle(
+              color: Colors.white, fontSize: 24, fontWeight: FontWeight.bold),
+        ),
         centerTitle: true,
-        backgroundColor: Colors.transparent,
+        backgroundColor: const Color(0xff2C9CEE),
+        elevation: 0,
         actions: [
           IconButton(
-            icon: const Icon(
-              Icons.logout,
-              color: Colors.black,
-            ),
+            color: Colors.white,
+            icon: const Icon(Icons.logout),
+            tooltip: 'Logout',
             onPressed: logout,
           ),
         ],
       ),
       body: isLoading
           ? const Center(child: CircularProgressIndicator())
-          : SingleChildScrollView(
-              padding: const EdgeInsets.all(16.0),
-              child: RefreshIndicator(
-                onRefresh: _onRefresh,
+          : RefreshIndicator(
+              onRefresh: _onRefresh,
+              child: SingleChildScrollView(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
                 child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    Center(
-                      child: GestureDetector(
-                        onTap: () {
-                          if (userData?['imageurl'] != null) {
-                            Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) => showZoomedAvatar(
-                                        userData?['imageurl'])));
-                          }
-                        },
-                        child: CircleAvatar(
-                          radius: 60,
-                          backgroundImage: userData?['imageurl'] != null
-                              ? NetworkImage(userData!['imageurl'])
-                              : const AssetImage('images/anonymous.png')
-                                  as ImageProvider,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    Center(
-                      child: Text(
-                        userData?['username'] ?? 'No Username',
-                        style: const TextStyle(
-                          color: Color(0xff2C9CEE),
-                          fontSize: 22,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    Center(
-                      child: Text(
-                        userData?['email'] ?? 'No Email',
-                        style: const TextStyle(
-                          fontSize: 16,
-                          color: Colors.grey,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 20),
-                    // Username in Card with icon
-                    cardrepeat(
-                        icon: Icon(Icons.person),
-                        label: 'username',
-                        message: userData?['username'] ?? 'No Username'),
-                    const SizedBox(height: 8),
-                    // Email in Card with icon
-                    cardrepeat(
-                        icon: Icon(Icons.email),
-                        label: 'Email',
-                        message: (userData?['email'] ?? 'No Email')),
-                    const SizedBox(height: 8),
-
-                    if (userData?['role'] == "user") ...[
-                      cardrepeat(
-                        icon: Icon(Icons.badge_sharp),
-                        label: 'UserId',
-                        message: '${userData?['user_id'] ?? 'No ID'}',
-                      ),
-                      cardrepeat(
-                          icon: Icon(Icons.phone),
-                          label: 'Phonenumber',
-                          message:
-                              userData?['phonenumber'] ?? 'No Phone number'),
-                      const SizedBox(height: 8),
-                      cardrepeat(
-                          icon: Icon(Icons.cake),
-                          label: 'DateBirthday',
-                          message: userData?['datebirthday'] ?? 'No Birthdate'),
-                      const SizedBox(height: 8),
-                    ],
                     GestureDetector(
-                        onTap: () {
-                          Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => ForgotPassword(
-                                        message: false,
-                                      )));
-                        },
-                        child: cardrepeat(
-                            icon: Icon(Icons.lock_reset),
-                            message: "Reset Password")),
-                    const SizedBox(height: 20),
-                    Align(
-                      alignment: Alignment.center,
-                      child: ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                            backgroundColor: Color(0xff2C9CEE)),
-                        onPressed: () {
+                      onTap: () {
+                        if (userData?['imageurl'] != null) {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                                builder: (context) => const EditProfileView()),
-                          ).then((_) {
-                            _onRefresh();
-                          });
-                        },
-                        child: const Text('Edit Profile',
-                            style: TextStyle(
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold)),
+                              builder: (context) =>
+                                  showZoomedAvatar(userData!['imageurl']),
+                            ),
+                          );
+                        }
+                      },
+                      child: CircleAvatar(
+                        radius: 70,
+                        backgroundImage: userData?['imageurl'] != null
+                            ? NetworkImage(userData!['imageurl'])
+                            : const AssetImage('images/anonymous.png')
+                                as ImageProvider,
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    Text(
+                      userData?['username'] ?? 'No Username',
+                      style: const TextStyle(
+                        fontSize: 22,
+                        fontWeight: FontWeight.bold,
+                        color: Color(0xff2C9CEE),
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      userData?['email'] ?? 'No Email',
+                      style: const TextStyle(
+                        fontSize: 16,
+                        color: Colors.black54,
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    _buildDetailsSection(),
+                    const SizedBox(height: 24),
+                    ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xff2C9CEE),
+                        padding: const EdgeInsets.symmetric(
+                            vertical: 14, horizontal: 36),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                      ),
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const EditProfileView(),
+                          ),
+                        ).then((_) => _onRefresh());
+                      },
+                      child: const Text(
+                        'Edit Profile',
+                        style: TextStyle(
+                          fontSize: 16,
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                     ),
                   ],
@@ -307,23 +235,90 @@ class _ProfileState extends State<Profile> {
             ),
     );
   }
-}
 
-Widget cardrepeat({required icon, String? label, required message}) {
-  return Card(
-    elevation: 5,
-    shape: RoundedRectangleBorder(
-      borderRadius: BorderRadius.circular(12),
-    ),
-    child: ListTile(
-      leading: icon,
-      title: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        if (label != null || label == '') ...[
-          Text(label!,
-              style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
+  Widget _buildDetailsSection() {
+    return Column(
+      children: [
+        _buildInfoCard(
+          icon: Icons.person,
+          label: 'Username',
+          value: userData?['username'] ?? 'No Username',
+        ),
+        _buildInfoCard(
+          icon: Icons.email,
+          label: 'Email',
+          value: userData?['email'] ?? 'No Email',
+        ),
+        if (userData?['role'] == 'user') ...[
+          _buildInfoCard(
+            icon: Icons.badge,
+            label: 'User ID',
+            value: userData?['user_id'] ?? 'No ID',
+          ),
+          _buildInfoCard(
+            icon: Icons.phone,
+            label: 'Phone Number',
+            value: userData?['phonenumber'] ?? 'No Phone Number',
+          ),
+          _buildInfoCard(
+            icon: Icons.cake,
+            label: 'Date of Birth',
+            value: userData?['datebirthday'] ?? 'No Birthdate',
+          ),
         ],
-        Text(message)
-      ]),
-    ),
-  );
+        GestureDetector(
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => ForgotPassword(message: false),
+              ),
+            );
+          },
+          child: _buildInfoCard(
+            icon: Icons.lock_reset,
+            label: 'Reset Password',
+            value: 'Change your password',
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildInfoCard({
+    required IconData icon,
+    required String label,
+    required String value,
+  }) {
+    return Card(
+      elevation: 4,
+      margin: const EdgeInsets.symmetric(vertical: 8.0),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      child: ListTile(
+        leading: Container(
+          padding: const EdgeInsets.all(8),
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: const Color(0xff2C9CEE).withOpacity(0.1),
+          ),
+          child: Icon(icon, color: const Color(0xff2C9CEE)),
+        ),
+        title: Text(
+          label,
+          style: const TextStyle(
+            fontWeight: FontWeight.bold,
+            fontSize: 16,
+          ),
+        ),
+        subtitle: Text(value, style: const TextStyle(fontSize: 14)),
+      ),
+    );
+  }
+
+  Widget showZoomedAvatar(String imageUrl) {
+    return Scaffold(
+      appBar: AppBar(backgroundColor: Colors.grey),
+      body: PhotoView(imageProvider: NetworkImage(imageUrl)),
+    );
+  }
 }
