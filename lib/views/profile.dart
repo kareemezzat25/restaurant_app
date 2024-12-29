@@ -33,26 +33,34 @@ class _ProfileState extends State<Profile> {
             .eq('email', user.email!)
             .limit(1)
             .single();
-        setState(() {
-          userData = response;
-          isLoading = false;
-        });
+        if (mounted) {
+          setState(() {
+            userData = response;
+            isLoading = false;
+          });
+        }
       } else {
+        if (mounted) {
+          setState(() {
+            isLoading = false;
+          });
+        }
+      }
+    } catch (error) {
+      if (mounted) {
         setState(() {
           isLoading = false;
         });
       }
-    } catch (error) {
-      setState(() {
-        isLoading = false;
-      });
     }
   }
 
   Future<void> _onRefresh() async {
-    setState(() {
-      isLoading = true;
-    });
+    if (mounted) {
+      setState(() {
+        isLoading = true;
+      });
+    }
     await fetchUserData();
   }
 

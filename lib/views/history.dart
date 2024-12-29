@@ -246,70 +246,117 @@ class _HistoryState extends State<History> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
       appBar: AppBar(
-        backgroundColor: Colors.white,
-        automaticallyImplyLeading: false,
+        elevation: 0,
+        flexibleSpace: Container(
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              colors: [Color(0xFFFF8966), Color(0xFFFF5F6D)],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+          ),
+        ),
         title: const Text(
           "Order History",
-          style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+          style: TextStyle(
+            fontSize: 24,
+            fontWeight: FontWeight.bold,
+            color: Colors.white,
+          ),
         ),
         centerTitle: true,
+        automaticallyImplyLeading: false, // Removes the back arrow
       ),
+      backgroundColor: Colors.white, // Set background color to white
       body: isLoading
-          ? const Center(child: CircularProgressIndicator())
+          ? const Center(
+              child: CircularProgressIndicator(color: Color(0xFF4A90E2)),
+            )
           : historyItems.isEmpty
               ? const Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      SizedBox(height: 10),
-                      Text(
-                        "No history found.",
-                        style: TextStyle(
-                            fontSize: 18, fontWeight: FontWeight.bold),
-                      ),
-                    ],
+                  child: Text(
+                    "No history found.",
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.grey,
+                    ),
                   ),
                 )
               : Column(
                   children: [
                     Expanded(
                       child: ListView.builder(
+                        padding: const EdgeInsets.all(10),
                         itemCount: historyItems.length,
                         itemBuilder: (context, index) {
                           final item = historyItems[index];
                           return Card(
-                            color: const Color.fromARGB(255, 221, 227, 233),
-                            margin: const EdgeInsets.all(10),
-                            child: ListTile(
-                              leading: Container(
-                                width: 60,
-                                height: 80,
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(8),
-                                  image: DecorationImage(
-                                    image:
-                                        NetworkImage(item['itemimage'] ?? ''),
-                                    fit: BoxFit.fill,
-                                  ),
-                                ),
-                              ),
-                              title: Text(
-                                item['itemname'] ?? 'Unknown Item',
-                                style: const TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 16,
-                                ),
-                              ),
-                              subtitle: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
+                            elevation: 6,
+                            // Card elevation
+
+                            margin: const EdgeInsets.symmetric(vertical: 10),
+                            shape: RoundedRectangleBorder(
+                              side: BorderSide(
+                                  color: Color(0xFFFF8966).withOpacity(0.3),
+                                  width: 1),
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            color: Colors.white, // Card color
+                            child: Padding(
+                              padding: const EdgeInsets.all(12),
+                              child: Row(
                                 children: [
-                                  Text("Quantity: ${item['quantity']}"),
-                                  Text(
-                                      "Total Price: \$${item['totalprice']?.toStringAsFixed(2) ?? '0.00'}"),
-                                  Text(
-                                    "Order Date: ${item['formatted_created_at'] ?? 'N/A'}",
+                                  ClipRRect(
+                                    borderRadius: BorderRadius.circular(8),
+                                    child: Image.network(
+                                      item['itemimage'] ?? '',
+                                      width: 70,
+                                      height: 70,
+                                      fit: BoxFit.cover,
+                                      errorBuilder:
+                                          (context, error, stackTrace) =>
+                                              const Icon(Icons.image, size: 70),
+                                    ),
+                                  ),
+                                  const SizedBox(width: 12),
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          item['itemname'] ?? 'Unknown Item',
+                                          style: const TextStyle(
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                        const SizedBox(height: 2),
+                                        Text(
+                                          "Quantity: ${item['quantity']}",
+                                          style: const TextStyle(
+                                            fontSize: 14,
+                                            color: Colors.grey,
+                                          ),
+                                        ),
+                                        Text(
+                                          "Total: \$${item['totalprice']?.toStringAsFixed(2) ?? '0.00'}",
+                                          style: const TextStyle(
+                                            fontSize: 14,
+                                            color: Colors.grey,
+                                          ),
+                                        ),
+                                        Text(
+                                          "Date: ${item['formatted_created_at'] ?? 'N/A'}",
+                                          style: const TextStyle(
+                                            fontSize: 14,
+                                            color: Colors.grey,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
                                   ),
                                 ],
                               ),
@@ -320,33 +367,75 @@ class _HistoryState extends State<History> {
                     ),
                     if (userRole == 'admin')
                       Padding(
-                        padding: EdgeInsets.only(top: 10),
+                        padding: const EdgeInsets.all(16),
                         child: ElevatedButton(
-                          onPressed: () async {},
+                          onPressed: () async {
+                            final userResponse = await Supabase.instance.client
+                                .from('users')
+                                .select()
+                                .eq('user_id', widget.userid!)
+                                .single();
+
+                            if (userResponse != null) {
+                              showEnterAmountDialog(userResponse);
+                            } else {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text("User not found."),
+                                ),
+                              );
+                            }
+                          },
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.blue,
+                            backgroundColor: Color(0xFFFF6E73),
                             padding: const EdgeInsets.symmetric(
                                 vertical: 16, horizontal: 24),
                             shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12)),
+                              borderRadius: BorderRadius.circular(12),
+                            ),
                           ),
                           child: const Text(
                             "Add Money",
                             style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold),
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
                           ),
                         ),
                       ),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 8.0),
-                      child: Text(
-                        "Total Amount: \$${totalAmount.toStringAsFixed(2)}",
-                        style: const TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                        ),
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.grey.withOpacity(0.1),
+                            blurRadius: 10,
+                            spreadRadius: 5,
+                          ),
+                        ],
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          const Text(
+                            "Total Amount:",
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          Text(
+                            "\$${totalAmount.toStringAsFixed(2)}",
+                            style: const TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.green,
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                   ],

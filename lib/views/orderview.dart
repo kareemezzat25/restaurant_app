@@ -300,7 +300,7 @@ class _OrderState extends State<Order> {
                                   borderRadius: BorderRadius.circular(12),
                                   child: Image.network(
                                     item['item_image'] ?? '',
-                                    width: 80,
+                                    width: 70,
                                     height: 80,
                                     fit: BoxFit.fill,
                                     errorBuilder:

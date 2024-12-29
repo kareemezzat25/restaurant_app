@@ -1,5 +1,4 @@
 import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_stripe/flutter_stripe.dart';
 import 'package:resturant_app/widgets/app_constant.dart';
@@ -15,7 +14,7 @@ class Wallet extends StatefulWidget {
 
 class WalletState extends State<Wallet> {
   final TextEditingController _amountController = TextEditingController();
-  double walletBalance = 0.0; // لتخزين الرصيد الحالي
+  double walletBalance = 0.0;
   bool isLoading = true;
   Map<String, dynamic>? paymentIntent;
 
@@ -25,6 +24,12 @@ class WalletState extends State<Wallet> {
     _fetchWalletBalance();
   }
 
+  @override
+  void dispose() {
+    _amountController.dispose();
+    super.dispose();
+  }
+
   Future<void> _fetchWalletBalance() async {
     final response = await Supabase.instance.client
         .from('users')
@@ -32,7 +37,8 @@ class WalletState extends State<Wallet> {
         .eq('email', Supabase.instance.client.auth.currentUser!.email as String)
         .single();
 
-    if (response != null) {
+    if (mounted) {
+      // Check if the widget is still mounted
       setState(() {
         walletBalance = (response['wallet'] ?? '0' as num).toDouble();
         isLoading = false;
@@ -40,7 +46,6 @@ class WalletState extends State<Wallet> {
     }
   }
 
-  // إضافة المال إلى Supabase
   Future<void> _addMoney(double amount) async {
     await makePayment(amount.toString());
   }
@@ -48,15 +53,16 @@ class WalletState extends State<Wallet> {
   Future<void> makePayment(String amount) async {
     try {
       paymentIntent = await createPaymentIntent(amount, 'USD');
+      if (!mounted) return; // Exit if the widget is no longer mounted
+
       await Stripe.instance
           .initPaymentSheet(
               paymentSheetParameters: SetupPaymentSheetParameters(
                   paymentIntentClientSecret: paymentIntent!['client_secret'],
                   style: ThemeMode.dark,
-                  merchantDisplayName: 'FSCU'))
+                  merchantDisplayName: 'Fcms'))
           .then((value) {});
 
-      // عرض Payment Sheet للمستخدم
       displayPaymentSheet(amount);
     } catch (e) {
       print('Error during payment: $e');
@@ -75,12 +81,18 @@ class WalletState extends State<Wallet> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Successfully added \$${amount.toString()}')),
         );
+        if (mounted) {
+          // Check before calling setState
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+                content: Text('Successfully added \$${amount.toString()}')),
+          );
 
-        // تحديث واجهة المستخدم
-        setState(() {
-          isLoading = true;
-        });
-        await _fetchWalletBalance(); // إعادة جلب الرصيد
+          setState(() {
+            isLoading = true;
+          });
+          await _fetchWalletBalance();
+        }
       }).onError((error, stackTrace) {
         print('Error is: $error $stackTrace');
       });
@@ -89,7 +101,6 @@ class WalletState extends State<Wallet> {
     }
   }
 
-  // إنشاء PaymentIntent باستخدام Stripe
   Future<Map<String, dynamic>> createPaymentIntent(
       String amount, String currency) async {
     try {
@@ -99,17 +110,15 @@ class WalletState extends State<Wallet> {
         'payment_method_types[]': 'card',
       };
 
-      print("Sending request to Stripe..."); // طباعة للتأكد
       var response = await http.post(
         Uri.parse('https://api.stripe.com/v1/payment_intents'),
         headers: {
-          'Authorization': 'Bearer $secretKey', // تأكد من صحة المفتاح
+          'Authorization': 'Bearer $secretKey',
           'Content-Type': 'application/x-www-form-urlencoded'
         },
         body: body,
       );
 
-      print("Response: ${response.body}"); // طباعة الرد
       return jsonDecode(response.body);
     } catch (err) {
       print('Error creating payment intent: ${err.toString()}');
@@ -122,7 +131,6 @@ class WalletState extends State<Wallet> {
     return calculatedAmount.toString();
   }
 
-  // إضافة هذا الجزء داخل كلاس WalletState
   Future<void> _showAddMoneyDialog() async {
     final TextEditingController _dialogAmountController =
         TextEditingController();
@@ -131,6 +139,8 @@ class WalletState extends State<Wallet> {
       context: context,
       builder: (context) {
         return AlertDialog(
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
           title: const Text(
             "Add Money",
             style: TextStyle(color: Colors.blue, fontWeight: FontWeight.bold),
@@ -155,21 +165,22 @@ class WalletState extends State<Wallet> {
           actions: [
             TextButton(
               onPressed: () {
-                Navigator.of(context).pop(); // إغلاق النافذة
+                Navigator.of(context).pop();
               },
               child:
                   const Text("Cancel", style: TextStyle(color: Colors.black)),
             ),
             ElevatedButton(
+              style: ElevatedButton.styleFrom(backgroundColor: Colors.blue),
               onPressed: () {
                 if (_dialogAmountController.text.isNotEmpty) {
                   double enteredAmount =
                       double.parse(_dialogAmountController.text);
-                  Navigator.of(context).pop(); // إغلاق النافذة
-                  _addMoney(enteredAmount); // بدء عملية الدفع
+                  Navigator.of(context).pop();
+                  _addMoney(enteredAmount);
                 }
               },
-              child: const Text("Pay", style: TextStyle(color: Colors.blue)),
+              child: const Text("Pay", style: TextStyle(color: Colors.white)),
             ),
           ],
         );
@@ -183,90 +194,123 @@ class WalletState extends State<Wallet> {
       appBar: AppBar(
         automaticallyImplyLeading: false,
         centerTitle: true,
-        title: const Text("Wallet",
-            style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
+        flexibleSpace: Container(
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              //[Color(0xFFFF8966), Color(0xFFFF5F6D)]
+              colors: [Color(0xFFFF8966), Color(0xFFFF5F6D)],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+          ),
+        ),
+        title: const Text(
+          "Wallet",
+          style: TextStyle(
+              fontSize: 22, color: Colors.white, fontWeight: FontWeight.bold),
+        ),
       ),
       body: isLoading
           ? const Center(child: CircularProgressIndicator())
-          : Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const SizedBox(height: 10),
-                Container(
-                  padding: const EdgeInsets.all(10),
-                  decoration: const BoxDecoration(color: Colors.black),
-                  child: Row(
+          : SingleChildScrollView(
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Center(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Image.asset("images/Wallet_icon.png",
-                          height: 60, width: 60, fit: BoxFit.cover),
-                      const SizedBox(width: 10),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const Text("Your Wallet",
+                      Container(
+                        padding: const EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(12),
+                          gradient: const LinearGradient(
+                            colors: [Colors.blue, Colors.purple],
+                          ),
+                        ),
+                        child: Row(
+                          children: [
+                            Image.asset("images/Wallet_icon.png",
+                                height: 60, width: 60, fit: BoxFit.cover),
+                            const SizedBox(width: 16),
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const Text(
+                                  "Your Wallet",
+                                  style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.bold),
+                                ),
+                                Text(
+                                  "\$${walletBalance.toStringAsFixed(2)}",
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 24,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 20),
+                      const Text(
+                        "Quick Add",
+                        style: TextStyle(
+                            fontSize: 18, fontWeight: FontWeight.bold),
+                      ),
+                      const SizedBox(height: 10),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: [100, 500, 1000, 2000]
+                            .map(
+                              (amount) => GestureDetector(
+                                onTap: () => _addMoney(amount.toDouble()),
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 16, vertical: 10),
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(12),
+                                    color: Colors.grey[200],
+                                  ),
+                                  child: Text(
+                                    "\$$amount",
+                                    style: const TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.bold),
+                                  ),
+                                ),
+                              ),
+                            )
+                            .toList(),
+                      ),
+                      const SizedBox(height: 20),
+                      GestureDetector(
+                        onTap: _showAddMoneyDialog,
+                        child: Container(
+                          width: double.infinity,
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          decoration: BoxDecoration(
+                            color: Colors.blue,
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: const Center(
+                            child: Text(
+                              "Add Money",
                               style: TextStyle(
-                                  color: Colors.grey,
+                                  color: Colors.white,
                                   fontSize: 18,
-                                  fontWeight: FontWeight.bold)),
-                          Text("\$${walletBalance.toString()}",
-                              style: const TextStyle(
-                                  color: Colors.white, fontSize: 18)),
-                        ],
+                                  fontWeight: FontWeight.bold),
+                            ),
+                          ),
+                        ),
                       ),
                     ],
                   ),
                 ),
-                const SizedBox(height: 20),
-                const Padding(
-                  padding: EdgeInsets.only(left: 12.0),
-                  child: Text("Add money",
-                      style:
-                          TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                ),
-                const SizedBox(height: 10),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [100, 500, 1000, 2000]
-                      .map(
-                        (amount) => GestureDetector(
-                          onTap: () => _addMoney(amount.toDouble()),
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 12, vertical: 4),
-                            decoration: BoxDecoration(
-                                border: Border.all(color: Color(0xFFE9E2E2)),
-                                borderRadius: BorderRadius.circular(5)),
-                            child: Text("\$$amount",
-                                style: const TextStyle(
-                                    fontSize: 14, fontWeight: FontWeight.bold)),
-                          ),
-                        ),
-                      )
-                      .toList(),
-                ),
-                const SizedBox(height: 20),
-                GestureDetector(
-                  onTap: _showAddMoneyDialog, // استدعاء الدالة عند الضغط
-
-                  child: Container(
-                    width: double.infinity,
-                    margin: const EdgeInsets.symmetric(horizontal: 20),
-                    padding: const EdgeInsets.symmetric(vertical: 10),
-                    decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(14),
-                        color: Colors.blue),
-                    child: const Center(
-                      child: Text(
-                        "Add Money",
-                        style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold),
-                      ),
-                    ),
-                  ),
-                )
-              ],
+              ),
             ),
     );
   }
