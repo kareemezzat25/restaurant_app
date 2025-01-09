@@ -15,6 +15,8 @@ class _HomeState extends State<HomeView> {
   List<Map<String, dynamic>> filteredItems = [];
   bool isLoading = true;
   String selectedCategory = "";
+  bool isSearchFieldVisible =
+      true; // Flag to control visibility of search field
 
   TextEditingController searchController = TextEditingController();
 
@@ -62,6 +64,8 @@ class _HomeState extends State<HomeView> {
       filteredItems = category.isEmpty
           ? allItems
           : allItems.where((item) => item['category'] == category).toList();
+      isSearchFieldVisible =
+          false; // Hide search field when a filter is applied
     });
   }
 
@@ -92,7 +96,6 @@ class _HomeState extends State<HomeView> {
         flexibleSpace: Container(
           decoration: const BoxDecoration(
             gradient: LinearGradient(
-              //[Color(0xFFFF8966), Color(0xFFFF5F6D)]
               colors: [Color(0xFFFF8966), Color(0xFFFF5F6D)],
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
@@ -135,28 +138,31 @@ class _HomeState extends State<HomeView> {
                     ),
                   ),
                   const SizedBox(height: 20),
-                  TextField(
-                    controller: searchController,
-                    onChanged: (value) => applyFilters(),
-                    decoration: InputDecoration(
-                      hintText: "Search for items...",
-                      filled: true,
-                      fillColor: Colors.white,
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(30),
-                        borderSide: BorderSide.none,
+                  // Display search field only if it's visible
+                  if (isSearchFieldVisible)
+                    TextField(
+                      controller: searchController,
+                      onChanged: (value) => applyFilters(),
+                      decoration: InputDecoration(
+                        hintText: "Search for items...",
+                        filled: true,
+                        fillColor: Colors.white,
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(30),
+                          borderSide: BorderSide.none,
+                        ),
+                        prefixIcon:
+                            const Icon(Icons.search, color: Colors.grey),
+                        suffixIcon: IconButton(
+                          icon: const Icon(Icons.clear, color: Colors.grey),
+                          onPressed: () {
+                            searchController.clear();
+                            applyFilters();
+                          },
+                        ),
                       ),
-                      prefixIcon: const Icon(Icons.search, color: Colors.grey),
-                      suffixIcon: IconButton(
-                        icon: const Icon(Icons.clear, color: Colors.grey),
-                        onPressed: () {
-                          searchController.clear();
-                          applyFilters();
-                        },
-                      ),
+                      style: const TextStyle(fontSize: 16),
                     ),
-                    style: const TextStyle(fontSize: 16),
-                  ),
                 ],
               ),
             ),

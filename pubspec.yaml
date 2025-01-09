@@ -52,10 +52,16 @@ dependencies:
   flutter_stripe: ^11.3.0
   carousel_slider: ^5.0.0
   font_awesome_flutter: ^10.8.0
+  flutter_launcher_icons: ^0.14.2
 
 
+flutter_icons:
+  android: true
+  ios: true
+  image_path: "images/logo.png"
 
 dev_dependencies:
+
   flutter_test:
     sdk: flutter
   # The "flutter_lints" package below contains a set of recommended lints to
@@ -65,10 +71,13 @@ dev_dependencies:
   # rules and activating additional ones.
   flutter_lints: ^2.0.0
 
+
+
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
 
 # The following section is specific to Flutter packages.
+
 flutter:
 
   # The following line ensures that the Material Icons font is

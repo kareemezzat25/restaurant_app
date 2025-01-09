@@ -295,7 +295,6 @@ class _HistoryState extends State<History> {
                           return Card(
                             elevation: 6,
                             // Card elevation
-
                             margin: const EdgeInsets.symmetric(vertical: 10),
                             shape: RoundedRectangleBorder(
                               side: BorderSide(

@@ -171,21 +171,38 @@ class _AddItemState extends State<AddItem> {
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      child: Scaffold(
-        appBar: AppBar(
-          automaticallyImplyLeading: false,
-          backgroundColor: Colors.black,
-          elevation: 0,
-          centerTitle: true,
-          title: const Text(
-            "Add Item",
-            style: TextStyle(
-                fontSize: 24, fontWeight: FontWeight.bold, color: Colors.white),
+    return Scaffold(
+      appBar: AppBar(
+        automaticallyImplyLeading: false,
+        elevation: 0,
+        centerTitle: true,
+        flexibleSpace: Container(
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              colors: [Color(0xFFFF8966), Color(0xFFFF5F6D)],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
           ),
         ),
-        backgroundColor: Colors.white,
-        body: SingleChildScrollView(
+        title: const Text(
+          "Add Item",
+          style: TextStyle(
+            fontSize: 24,
+            fontWeight: FontWeight.bold,
+            color: Colors.white,
+          ),
+        ),
+      ),
+      body: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            colors: [Color(0xFFF9F9F9), Color(0xFFF1F1F1)],
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+          ),
+        ),
+        child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 20.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -198,13 +215,22 @@ class _AddItemState extends State<AddItem> {
                     width: 150,
                     height: 150,
                     decoration: BoxDecoration(
-                      border: Border.all(color: Colors.black, width: 1.5),
+                      border:
+                          Border.all(color: Colors.grey.shade400, width: 1.5),
                       borderRadius: BorderRadius.circular(20),
+                      color: Colors.white,
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.grey.withOpacity(0.3),
+                          blurRadius: 8,
+                          offset: const Offset(0, 4),
+                        ),
+                      ],
                     ),
                     child: selectedImage == null
                         ? const Icon(
                             Icons.camera_alt_outlined,
-                            color: Colors.black,
+                            color: Colors.grey,
                             size: 40,
                           )
                         : ClipRRect(
@@ -218,76 +244,78 @@ class _AddItemState extends State<AddItem> {
                 ),
               ),
               const SizedBox(height: 30.0),
-              const Text(
-                "Item Name",
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(height: 10.0),
-              _buildTextFormField(
+              _buildStyledTextFormField(
                 controller: namecontroller,
+                labelText: "Item Name",
                 hintText: "Enter Item Name",
-                fillColor: const Color.fromARGB(255, 239, 239, 242),
               ),
               const SizedBox(height: 30.0),
-              const Text(
-                "Item Price",
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(height: 10.0),
-              _buildTextFormField(
+              _buildStyledTextFormField(
                 controller: pricecontroller,
+                labelText: "Item Price",
                 hintText: "Enter Item Price",
-                fillColor: const Color.fromARGB(255, 239, 239, 242),
               ),
               const SizedBox(height: 30.0),
-              const Text(
+              /* const Text(
                 "Delivery Time",
                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 10.0),
+              */
               GestureDetector(
                 onTap: pickDuration,
                 child: Container(
                   width: MediaQuery.of(context).size.width,
                   padding: const EdgeInsets.symmetric(vertical: 15.0),
                   decoration: BoxDecoration(
-                    color: const Color.fromARGB(255, 239, 239, 242),
-                    borderRadius: BorderRadius.circular(10),
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(16),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.grey.withOpacity(0.3),
+                        blurRadius: 8,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
                   ),
                   child: Center(
                     child: Text(
                       selectedDuration != null
                           ? "${selectedDuration!.inMinutes} Minutes"
                           : "Select Delivery Time",
-                      style: const TextStyle(fontSize: 16),
+                      style: TextStyle(fontSize: 16, color: Colors.grey[800]),
                     ),
                   ),
                 ),
               ),
               const SizedBox(height: 30.0),
-              const Text(
-                "Item Detail",
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(height: 10.0),
-              _buildTextFormField(
+              _buildStyledTextFormField(
                 controller: detailcontroller,
+                labelText: "Item Details",
                 hintText: "Enter Item Detail",
-                fillColor: const Color.fromARGB(255, 239, 239, 242),
                 maxLines: 6,
               ),
               const SizedBox(height: 20.0),
+              /*
               const Text(
                 "Select Category",
                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
-              const SizedBox(height: 20.0),
+              const SizedBox(height: 20.0),*/
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 10.0),
                 width: MediaQuery.of(context).size.width,
                 decoration: BoxDecoration(
-                    color: const Color.fromARGB(255, 239, 239, 242),
-                    borderRadius: BorderRadius.circular(10)),
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(16),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.grey.withOpacity(0.3),
+                      blurRadius: 8,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
+                ),
                 child: DropdownButtonHideUnderline(
                   child: DropdownButton<String>(
                     items: fooditems
@@ -306,23 +334,28 @@ class _AddItemState extends State<AddItem> {
               ),
               const SizedBox(height: 20.0),
               GestureDetector(
-                onTap: () {
-                  uploadItem(); // Call the upload function
-                },
+                onTap: uploadItem,
                 child: Center(
                   child: Container(
-                    padding: const EdgeInsets.symmetric(vertical: 10.0),
-                    width: 150,
+                    padding: const EdgeInsets.symmetric(vertical: 15.0),
+                    width: 160,
                     decoration: BoxDecoration(
-                      color: Colors.black,
-                      borderRadius: BorderRadius.circular(10),
+                      color: Color(0xFFFF6E73),
+                      borderRadius: BorderRadius.circular(12),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.blue.withOpacity(0.3),
+                          blurRadius: 8,
+                          offset: const Offset(0, 4),
+                        ),
+                      ],
                     ),
                     child: const Center(
                       child: Text(
-                        "Add",
+                        "Add Item",
                         style: TextStyle(
                           color: Colors.white,
-                          fontSize: 22.0,
+                          fontSize: 18.0,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
@@ -337,21 +370,39 @@ class _AddItemState extends State<AddItem> {
     );
   }
 
-  Widget _buildTextFormField(
-      {required TextEditingController controller,
-      required String hintText,
-      int? maxLines = 1,
-      required Color fillColor}) {
+  Widget _buildStyledTextFormField({
+    required TextEditingController controller,
+    required String labelText,
+    required String hintText,
+    int maxLines = 1,
+  }) {
     return TextFormField(
       controller: controller,
       maxLines: maxLines,
       decoration: InputDecoration(
+        labelText: labelText,
+        labelStyle: const TextStyle(
+          fontSize: 16,
+          fontWeight: FontWeight.bold,
+        ),
         filled: true,
-        fillColor: fillColor,
+        fillColor: Colors.white,
         hintText: hintText,
+        hintStyle: const TextStyle(color: Colors.grey),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16),
         ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(16),
+          borderSide: BorderSide(color: Colors.grey.shade300, width: 1.5),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(16),
+          borderSide:
+              BorderSide(color: Color(0xFFFF8966).withOpacity(0.7), width: 2),
+        ),
+        contentPadding:
+            const EdgeInsets.symmetric(vertical: 15.0, horizontal: 10.0),
       ),
     );
   }

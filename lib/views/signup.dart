@@ -52,7 +52,7 @@ class _SignUpState extends State<SignUp> {
         _showSnackBar("Failed to create account.", Colors.red);
       }
     } catch (e) {
-      _showSnackBar("An error occurred: $e", Colors.red);
+      _showSnackBar("An User is already exist", Colors.red);
     }
   }
 
@@ -88,7 +88,7 @@ class _SignUpState extends State<SignUp> {
                     style: TextStyle(
                       fontSize: 24,
                       fontWeight: FontWeight.bold,
-                      color: Colors.black,
+                      color: const Color(0xFF273671),
                     ),
                   ),
                   const SizedBox(height: 30),

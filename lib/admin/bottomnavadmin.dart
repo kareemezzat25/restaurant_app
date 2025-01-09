@@ -2,7 +2,7 @@ import "package:curved_navigation_bar/curved_navigation_bar.dart";
 import "package:flutter/material.dart";
 import "package:resturant_app/admin/addfooditem.dart";
 import "package:resturant_app/views/profile.dart";
-import "package:resturant_app/admin/searchfood.dart";
+import "package:resturant_app/admin/homeadmin.dart";
 import "package:resturant_app/admin/usersview.dart";
 import "package:resturant_app/views/home.dart";
 

@@ -15,7 +15,21 @@ class EditItem extends StatefulWidget {
 }
 
 class _EditItemState extends State<EditItem> {
-  final List<String> foodItems = ['Ice-cream', 'Burger', 'Salad', 'Pizza'];
+  final List<String> foodItems = [
+    'Ice-cream',
+    'Burger',
+    'Salad',
+    'Pizza',
+    'Juices',
+    'Sandwiches',
+    'Breakfast',
+    'Shawarma',
+    'Steak',
+    'FriedChicken',
+    'Pastas',
+    'Desserts',
+    'hot-drink'
+  ];
   String? selectedCategory;
   TextEditingController nameController = TextEditingController();
   TextEditingController priceController = TextEditingController();
@@ -219,7 +233,8 @@ class _EditItemState extends State<EditItem> {
                     width: 150,
                     height: 150,
                     decoration: BoxDecoration(
-                      border: Border.all(color: Colors.black, width: 1.5),
+                      border: Border.all(
+                          color: Colors.black.withOpacity(0.7), width: 1.5),
                       borderRadius: BorderRadius.circular(20),
                     ),
                     child: selectedImage == null
@@ -355,7 +370,7 @@ class _EditItemState extends State<EditItem> {
                   style: ElevatedButton.styleFrom(
                     fixedSize:
                         Size(MediaQuery.of(context).size.width * 0.8, 50),
-                    backgroundColor: Colors.black,
+                    backgroundColor: Color(0xFFFF6E73),
                   ),
                   onPressed: updateItem,
                   child: const Text(

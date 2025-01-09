@@ -24,7 +24,7 @@ class _LoginState extends State<Login> {
   final formKey = GlobalKey<FormState>();
   Future signInWithGoogle() async {
     await _authService.signInWithGoogle(context);
-    Navigator.pushReplacement(
+    Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => BottomNav()),
     );
@@ -53,7 +53,7 @@ class _LoginState extends State<Login> {
 
           if (userData != null && userData['role'] == 'user') {
             _showSnackBar("Login successfully!", Colors.green);
-            Navigator.pushReplacement(
+            Navigator.push(
               context,
               MaterialPageRoute(
                 builder: (context) => BottomNav(),
@@ -79,7 +79,7 @@ class _LoginState extends State<Login> {
       }
     } catch (e) {
       print("Error during login: $e");
-      _showSnackBar("An error occurred: $e", Colors.red);
+      _showSnackBar("Your Email or Password is no Correct", Colors.red);
     }
   }
 
@@ -119,7 +119,7 @@ class _LoginState extends State<Login> {
                     style: TextStyle(
                       fontSize: 24,
                       fontWeight: FontWeight.bold,
-                      color: Colors.black,
+                      color: Color(0xFF273671),
                     ),
                   ),
                   const SizedBox(height: 30),
