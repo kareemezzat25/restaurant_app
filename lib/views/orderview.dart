@@ -12,6 +12,7 @@ class _OrderState extends State<Order> {
   List<Map<String, dynamic>> cartItems = [];
   double total = 0.0;
   bool isLoading = true;
+  TextEditingController discountController = TextEditingController();
 
   @override
   void initState() {
@@ -55,30 +56,6 @@ class _OrderState extends State<Order> {
     setState(() {});
   }
 
-  Future<void> updateQuantity(int index, int newQuantity) async {
-    final item = cartItems[index];
-
-    if (newQuantity > 0) {
-      final newTotalPrice = item['itemprice'] * newQuantity;
-
-      await Supabase.instance.client.from('cart').update({
-        'quantity': newQuantity,
-        'total_price': newTotalPrice,
-      }).eq('id', item['id']);
-
-      setState(() {
-        cartItems[index]['quantity'] = newQuantity;
-        cartItems[index]['total_price'] = newTotalPrice;
-      });
-    } else {
-      if (newQuantity == 1) {
-        return;
-      }
-    }
-
-    calculateTotal();
-  }
-
   Future<void> handleCheckout() async {
     final user = Supabase.instance.client.auth.currentUser;
 
@@ -115,11 +92,13 @@ class _OrderState extends State<Order> {
 
       final remainingBalance = walletBalance - total;
 
-      // Show confirmation dialog
+      // Show confirmation dialog with discount code input
       showDialog(
         context: context,
         barrierDismissible: false, // Prevent dismissing by tapping outside
         builder: (BuildContext context) {
+          TextEditingController discountController = TextEditingController();
+          double discount = 0.0;
           return Stack(
             children: [
               Opacity(
@@ -137,11 +116,30 @@ class _OrderState extends State<Order> {
                     "Confirm Checkout",
                     style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                   ),
-                  content: Text(
-                    "The total price is \$${total.toStringAsFixed(2)}.\n"
-                    "Wallet after deduction: \$${remainingBalance.toStringAsFixed(2)}.\n"
-                    "Do you want to proceed?",
-                    style: const TextStyle(fontSize: 16, color: Colors.grey),
+                  content: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        "The total price is \$${total.toStringAsFixed(2)}.\n"
+                        "Wallet after deduction: \$${remainingBalance.toStringAsFixed(2)}.\n"
+                        "Do you want to proceed?",
+                        style:
+                            const TextStyle(fontSize: 16, color: Colors.grey),
+                      ),
+                      const SizedBox(height: 10),
+                      TextField(
+                        controller: discountController,
+                        decoration: InputDecoration(
+                          hintText: "Enter Discount Code",
+                          filled: true,
+                          fillColor: Colors.grey[200],
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10),
+                            borderSide: BorderSide.none,
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                   actions: [
                     TextButton(
@@ -155,6 +153,11 @@ class _OrderState extends State<Order> {
                     ),
                     TextButton(
                       onPressed: () async {
+                        final enteredCode = discountController.text.trim();
+                        if (enteredCode.isNotEmpty) {
+                          // Apply the discount code
+                          await applyPromoCode(enteredCode, discountController);
+                        }
                         Navigator.of(context).pop(true); // Proceed
                         await processCheckout(user, remainingBalance);
                       },
@@ -177,6 +180,73 @@ class _OrderState extends State<Order> {
     }
   }
 
+  Future<void> applyPromoCode(
+      String enteredCode, TextEditingController discountController) async {
+    final user = Supabase.instance.client.auth.currentUser;
+
+    if (user == null) return;
+
+    final response = await Supabase.instance.client
+        .from('discount_codes')
+        .select()
+        .eq('user_id', user.id)
+        .eq('code', enteredCode)
+        .eq('is_used', false)
+        .maybeSingle();
+
+    if (response != null) {
+      final discountPercentage = response['discount_percentage'];
+
+      // Apply discount on cart items
+      setState(() {
+        for (var item in cartItems) {
+          item['total_price'] = item['itemprice'] *
+              item['quantity'] *
+              (1 - (discountPercentage / 100));
+        }
+        calculateTotal();
+      });
+
+      await Supabase.instance.client
+          .from('discount_codes')
+          .update({'is_used': true}).eq('id', response['id']);
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+            content:
+                Text("Promo code applied! You saved $discountPercentage%")),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Invalid or used promo code")),
+      );
+    }
+  }
+
+  Future<void> updateQuantity(int index, int newQuantity) async {
+    final item = cartItems[index];
+
+    if (newQuantity > 0) {
+      final newTotalPrice = item['itemprice'] * newQuantity;
+
+      await Supabase.instance.client.from('cart').update({
+        'quantity': newQuantity,
+        'total_price': newTotalPrice,
+      }).eq('id', item['id']);
+
+      setState(() {
+        cartItems[index]['quantity'] = newQuantity;
+        cartItems[index]['total_price'] = newTotalPrice;
+      });
+    } else {
+      if (newQuantity == 1) {
+        return;
+      }
+    }
+
+    calculateTotal();
+  }
+
   Future<void> processCheckout(User user, double remainingBalance) async {
     try {
       // Deduct the total price from wallet
@@ -184,7 +254,6 @@ class _OrderState extends State<Order> {
         'wallet': remainingBalance,
       }).eq('email', user.email!);
 
-      // Store cart items in history table with user_id
       for (var item in cartItems) {
         await Supabase.instance.client.from('history').insert({
           'user_id': user.id,
@@ -357,10 +426,11 @@ class _OrderState extends State<Order> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
-                          Row(
+                          /*Row(
                             children: [
                               Expanded(
                                 child: TextField(
+                                  controller: discountController,
                                   decoration: InputDecoration(
                                     hintText: "Enter Discount Code",
                                     filled: true,
@@ -375,7 +445,12 @@ class _OrderState extends State<Order> {
                               const SizedBox(width: 8),
                               ElevatedButton(
                                 onPressed: () {
-                                  // Logic to apply discount
+                                  final enteredCode =
+                                      discountController.text.trim();
+                                  print("entered code : $enteredCode");
+                                  if (enteredCode.isNotEmpty) {
+                                    applyPromoCode(enteredCode);
+                                  }
                                 },
                                 style: ElevatedButton.styleFrom(
                                     backgroundColor: Color(0xFFFF6E73),
@@ -385,7 +460,7 @@ class _OrderState extends State<Order> {
                                         TextStyle(fontWeight: FontWeight.bold)),
                               ),
                             ],
-                          ),
+                          ),*/
                           const SizedBox(height: 10),
                           Text(
                             textAlign: TextAlign.center,

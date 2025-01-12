@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:photo_view/photo_view.dart';
+import 'package:resturant_app/views/discountcodepage.dart';
 import 'package:resturant_app/views/editprofile.dart';
 import 'package:resturant_app/views/forgetPassword.dart';
 import 'package:resturant_app/views/login.dart';
@@ -153,6 +154,19 @@ class _ProfileState extends State<Profile> {
         backgroundColor: const Color(0xff2C9CEE),
         elevation: 0,
         actions: [
+          if (userData?['role'] == 'user') ...[
+            IconButton(
+              color: Colors.white,
+              icon: Icon(Icons.discount),
+              onPressed: () {
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => DiscountCodesPage(
+                            userId: userData?['idAuth'] ?? '')));
+              },
+            )
+          ],
           IconButton(
             color: Colors.white,
             icon: const Icon(Icons.logout),

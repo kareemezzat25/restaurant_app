@@ -1,6 +1,9 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:intl/intl.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
 class History extends StatefulWidget {
   String? userid;
@@ -96,8 +99,7 @@ class _HistoryState extends State<History> {
             }
           }
 
-          if (!mounted)
-            return; // Check if the widget is still mounted before calling setState
+          if (!mounted) return;
 
           setState(() {
             historyItems = items;
@@ -128,6 +130,11 @@ class _HistoryState extends State<History> {
         });
       }
     }
+  }
+
+  String generatePromoCode() {
+    final random = Random();
+    return List.generate(6, (index) => random.nextInt(10)).join();
   }
 
   void showEnterAmountDialog(Map<String, dynamic> user) {
