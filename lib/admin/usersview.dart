@@ -327,7 +327,7 @@ class _UsersviewState extends State<Usersview> {
                         onTap: () => Navigator.push(context,
                             MaterialPageRoute(builder: (context) {
                           return History(
-                            userid: user['user_id'],
+                            userEmail: user['email'],
                           );
                         })),
                         child: Card(

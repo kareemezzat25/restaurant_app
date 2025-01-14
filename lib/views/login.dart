@@ -39,7 +39,6 @@ class _LoginState extends State<Login> {
         email: emailController.text.trim(),
         password: passwordController.text.trim(),
       );
-      print("Response: ${response}");
 
       if (response.user != null) {
         try {

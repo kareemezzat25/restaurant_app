@@ -6,8 +6,8 @@ import 'package:intl/intl.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
 class History extends StatefulWidget {
-  String? userid;
-  History({super.key, this.userid});
+  String? userEmail;
+  History({super.key, this.userEmail});
 
   @override
   _HistoryState createState() => _HistoryState();
@@ -34,16 +34,18 @@ class _HistoryState extends State<History> {
 
     if (currentUser != null) {
       try {
-        String? userIdToFetch = widget.userid ?? currentUser.id;
-        print("userid first:$userIdToFetch");
+        String? userEmailToFetch = widget.userEmail ?? currentUser.email;
+        // print("userid first:$userIdToFetch");
 
         final userResponse = await Supabase.instance.client
             .from('users')
-            .select('role')
+            .select('role,total_amount')
             .eq('email', currentUser.email!)
             .single();
 
         final userRoleFetched = userResponse["role"];
+        double totalAmountFetched =
+            double.parse(userResponse['total_amount'].toString());
         if (!mounted)
           return; // Check if the widget is still mounted before calling setState
 
@@ -52,16 +54,19 @@ class _HistoryState extends State<History> {
         });
 
         print("user role:$userRoleFetched");
-        print("userid:$userIdToFetch  || userid:${widget.userid}");
+        // print("userid:$userIdToFetch  || userid:${widget.userid}");
 
         late final historyResponse;
-        if (userRoleFetched == 'admin' && widget.userid != null) {
-          userIdToFetch = widget.userid;
+        if (userRoleFetched == 'admin' && widget.userEmail != null) {
+          userEmailToFetch = widget.userEmail;
           final useridauthResponse = await Supabase.instance.client
               .from('users')
-              .select('idAuth')
-              .eq('user_id', userIdToFetch!)
+              .select('idAuth,total_amount')
+              .eq('email', widget.userEmail!)
               .single();
+          totalAmountFetched =
+              double.parse(useridauthResponse['total_amount'].toString());
+          print("$totalAmountFetched egp");
           final userIdAuth = useridauthResponse['idAuth'] as String?;
 
           historyResponse = await Supabase.instance.client
@@ -103,10 +108,7 @@ class _HistoryState extends State<History> {
 
           setState(() {
             historyItems = items;
-            totalAmount = historyItems.fold(
-              0.0,
-              (sum, item) => sum + (item['totalprice'] ?? 0.0),
-            );
+            totalAmount = totalAmountFetched;
             isLoading = false;
           });
         } else {
@@ -379,7 +381,7 @@ class _HistoryState extends State<History> {
                             final userResponse = await Supabase.instance.client
                                 .from('users')
                                 .select()
-                                .eq('user_id', widget.userid!)
+                                .eq('email', widget.userEmail!)
                                 .single();
 
                             if (userResponse != null) {

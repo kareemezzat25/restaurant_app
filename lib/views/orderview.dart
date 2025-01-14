@@ -13,6 +13,7 @@ class _OrderState extends State<Order> {
   double total = 0.0;
   bool isLoading = true;
   TextEditingController discountController = TextEditingController();
+  bool isInvalidCode = false;
 
   @override
   void initState() {
@@ -95,81 +96,135 @@ class _OrderState extends State<Order> {
       // Show confirmation dialog with discount code input
       showDialog(
         context: context,
-        barrierDismissible: false, // Prevent dismissing by tapping outside
+        barrierDismissible: true,
         builder: (BuildContext context) {
           TextEditingController discountController = TextEditingController();
-          double discount = 0.0;
-          return Stack(
-            children: [
-              Opacity(
-                opacity: 0.9,
-                child: Container(
-                  color: Colors.black.withOpacity(0.5), // Dim the background
+          bool isInvalidCode = false;
+          return StatefulBuilder(
+            builder: (context, setState) {
+              return AlertDialog(
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
                 ),
-              ),
-              Center(
-                child: AlertDialog(
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  title: const Text(
-                    "Confirm Checkout",
-                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                  ),
-                  content: Column(
+                contentPadding: const EdgeInsets.all(20),
+                content: SizedBox(
+                  width: MediaQuery.of(context).size.width / 2,
+                  child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Text(
-                        "The total price is \$${total.toStringAsFixed(2)}.\n"
-                        "Wallet after deduction: \$${remainingBalance.toStringAsFixed(2)}.\n"
-                        "Do you want to proceed?",
-                        style:
-                            const TextStyle(fontSize: 16, color: Colors.grey),
+                        'Checkout',
+                        style: TextStyle(
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
-                      const SizedBox(height: 10),
+                      const SizedBox(height: 20),
                       TextField(
                         controller: discountController,
                         decoration: InputDecoration(
-                          hintText: "Enter Discount Code",
+                          hintText: "Discount Code",
                           filled: true,
                           fillColor: Colors.grey[200],
+                          errorText:
+                              isInvalidCode ? 'Invalid discount code' : null,
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(10),
                             borderSide: BorderSide.none,
                           ),
                         ),
+                        onChanged: (_) {
+                          setState(() {
+                            isInvalidCode = false;
+                          });
+                        },
+                      ),
+                      const SizedBox(height: 20),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            'Total Price:',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          Text(
+                            '\$${total.toStringAsFixed(2)}',
+                            style: TextStyle(
+                              fontSize: 16,
+                              color: Colors.green,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 10),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            'Wallet After Deduction:',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          Text(
+                            '\$${(walletBalance - total).toStringAsFixed(2)}',
+                            style: TextStyle(
+                              fontSize: 16,
+                              color: Colors.red,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 20),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                                foregroundColor: Color(0xFFFF6E73),
+                                backgroundColor: Colors.white),
+                            onPressed: () {
+                              Navigator.of(context).pop(false);
+                            },
+                            child: Text('Cancel'),
+                          ),
+                          ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                                backgroundColor: Color(0xFFFF6E73),
+                                foregroundColor: Colors.white),
+                            onPressed: () async {
+                              String discountCode =
+                                  discountController.text.trim();
+
+                              if (discountCode.isNotEmpty) {
+                                bool isCodeValid =
+                                    await checkDiscountCode(discountCode);
+                                if (!isCodeValid) {
+                                  setState(() {
+                                    isInvalidCode = true;
+                                  });
+                                  return;
+                                }
+                                await applyPromoCode(
+                                    discountCode, discountController);
+                              }
+                              Navigator.of(context).pop(true);
+                              await processCheckout(
+                                  user, walletBalance - total);
+                            },
+                            child: Text('OK'),
+                          ),
+                        ],
                       ),
                     ],
                   ),
-                  actions: [
-                    TextButton(
-                      onPressed: () {
-                        Navigator.of(context).pop(false); // Close dialog
-                      },
-                      child: const Text(
-                        "Cancel",
-                        style: TextStyle(color: Colors.red, fontSize: 16),
-                      ),
-                    ),
-                    TextButton(
-                      onPressed: () async {
-                        final enteredCode = discountController.text.trim();
-                        if (enteredCode.isNotEmpty) {
-                          // Apply the discount code
-                          await applyPromoCode(enteredCode, discountController);
-                        }
-                        Navigator.of(context).pop(true); // Proceed
-                        await processCheckout(user, remainingBalance);
-                      },
-                      child: const Text(
-                        "OK",
-                        style: TextStyle(color: Colors.green, fontSize: 16),
-                      ),
-                    ),
-                  ],
                 ),
-              ),
-            ],
+              );
+            },
           );
         },
       );
@@ -177,6 +232,23 @@ class _OrderState extends State<Order> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text("Error: $e")),
       );
+    }
+  }
+
+  Future<bool> checkDiscountCode(String code) async {
+    try {
+      final response = await Supabase.instance.client
+          .from('discount_codes')
+          .select()
+          .eq('code', code)
+          .eq('is_used', false);
+
+      if (response == null || response.isEmpty) {
+        return false;
+      }
+      return true;
+    } catch (e) {
+      return false;
     }
   }
 
@@ -250,9 +322,22 @@ class _OrderState extends State<Order> {
   Future<void> processCheckout(User user, double remainingBalance) async {
     try {
       // Deduct the total price from wallet
-      await Supabase.instance.client.from('users').update({
-        'wallet': remainingBalance,
-      }).eq('email', user.email!);
+
+      final userResponse = await Supabase.instance.client
+          .from('users')
+          .select('total_amount')
+          .eq('idAuth', user.id)
+          .single();
+
+      if (userResponse != null && userResponse['total_amount'] != null) {
+        double previousTotalAmount =
+            double.parse(userResponse['total_amount'].toString());
+        double newTotalAmount = previousTotalAmount + total;
+
+        await Supabase.instance.client
+            .from('users')
+            .update({'total_amount': newTotalAmount}).eq('idAuth', user.id);
+      }
 
       for (var item in cartItems) {
         await Supabase.instance.client.from('history').insert({
@@ -262,6 +347,9 @@ class _OrderState extends State<Order> {
           'totalprice': item['total_price'],
         });
       }
+      await Supabase.instance.client.from('users').update({
+        'wallet': remainingBalance,
+      }).eq('email', user.email!);
 
       // Clear the cart
       await Supabase.instance.client
@@ -426,41 +514,6 @@ class _OrderState extends State<Order> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
-                          /*Row(
-                            children: [
-                              Expanded(
-                                child: TextField(
-                                  controller: discountController,
-                                  decoration: InputDecoration(
-                                    hintText: "Enter Discount Code",
-                                    filled: true,
-                                    fillColor: Colors.grey[200],
-                                    border: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(10),
-                                      borderSide: BorderSide.none,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                              const SizedBox(width: 8),
-                              ElevatedButton(
-                                onPressed: () {
-                                  final enteredCode =
-                                      discountController.text.trim();
-                                  print("entered code : $enteredCode");
-                                  if (enteredCode.isNotEmpty) {
-                                    applyPromoCode(enteredCode);
-                                  }
-                                },
-                                style: ElevatedButton.styleFrom(
-                                    backgroundColor: Color(0xFFFF6E73),
-                                    foregroundColor: Colors.white),
-                                child: const Text("Apply",
-                                    style:
-                                        TextStyle(fontWeight: FontWeight.bold)),
-                              ),
-                            ],
-                          ),*/
                           const SizedBox(height: 10),
                           Text(
                             textAlign: TextAlign.center,
