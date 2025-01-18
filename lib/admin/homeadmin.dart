@@ -129,7 +129,7 @@ class _FoodItemsState extends State<FoodItems> {
                     ? Column(
                         children: [
                           Image.asset(
-                            "images/noitem.png",
+                            "assets/images/noitem.png",
                             width: MediaQuery.of(context).size.width / 2,
                             height: MediaQuery.of(context).size.height / 3,
                           ),

@@ -13,7 +13,7 @@ class OnboardingScreen extends StatelessWidget {
           controller: _pageController,
           children: [
             buildPage(
-              image: "images/screen1.png",
+              image: "assets/images/screen1.png",
               title: "Select from Our Best Menu",
               description: "Pick your food from our menu more than 35 times.",
               buttonText: "Next",
@@ -25,7 +25,7 @@ class OnboardingScreen extends StatelessWidget {
               },
             ),
             buildPage(
-              image: "images/screen2.png",
+              image: "assets/images/screen2.png",
               title: "Easy and Online Payment",
               description:
                   "You can pay cash on delivery and Card payment is available.",
@@ -38,7 +38,7 @@ class OnboardingScreen extends StatelessWidget {
               },
             ),
             buildPage(
-              image: "images/screen3.png",
+              image: "assets/images/screen3.png",
               title: "Get It Delivered",
               description: "Enjoy hot and fresh food at your doorstep.",
               buttonText: "Start",

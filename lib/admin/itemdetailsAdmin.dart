@@ -161,7 +161,7 @@ class _DetailsState extends State<ItemDetails> {
                           fit: BoxFit.fill,
                           errorBuilder: (context, error, stackTrace) {
                             return Image.asset(
-                              'images/salad2.png',
+                              'assets/images/salad2.png',
                               width: MediaQuery.of(context).size.width,
                               height: MediaQuery.of(context).size.height / 3,
                               fit: BoxFit.fill,

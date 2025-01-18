@@ -54,12 +54,13 @@ dependencies:
   font_awesome_flutter: ^10.8.0
   flutter_launcher_icons: ^0.14.2
   flutter_local_notifications: ^18.0.1
+  flutter_native_splash: ^2.4.4
 
 
 flutter_icons:
   android: true
   ios: true
-  image_path: "images/logo.png"
+  image_path: "assets/images/logo.png"
 
 dev_dependencies:
 
@@ -88,7 +89,7 @@ flutter:
 
   # To add assets to your application, add an assets section, like this:
   assets:
-    - images/
+    - assets/images/
 
   #   - images/a_dot_ham.jpeg
 
@@ -106,12 +107,12 @@ flutter:
   fonts:
     - family: Poppins
       fonts:
-        - asset: fonts/Poppins-SemiBold.ttf
+        - asset: assets/fonts/Poppins-SemiBold.ttf
   #       - asset: fonts/Schyler-Italic.ttf
   #         style: italic
     - family: Hurricane
       fonts:
-        - asset: fonts/Hurricane-Regular.ttf
+        - asset: assets/fonts/Hurricane-Regular.ttf
   #       - asset: fonts/TrajanPro_Bold.ttf
   #         weight: 700
   #

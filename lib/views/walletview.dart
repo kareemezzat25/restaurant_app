@@ -229,7 +229,7 @@ class WalletState extends State<Wallet> {
                         ),
                         child: Row(
                           children: [
-                            Image.asset("images/Wallet_icon.png",
+                            Image.asset("assets/images/Wallet_icon.png",
                                 height: 60, width: 60, fit: BoxFit.cover),
                             const SizedBox(width: 16),
                             Column(

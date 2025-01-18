@@ -251,7 +251,7 @@ class _EditItemState extends State<EditItem> {
                                     return ClipRRect(
                                       borderRadius: BorderRadius.circular(20),
                                       child: Image.asset(
-                                        'images/salad2.png',
+                                        'assets/images/salad2.png',
                                         fit: BoxFit.fill,
                                       ),
                                     );
@@ -261,7 +261,7 @@ class _EditItemState extends State<EditItem> {
                             : ClipRRect(
                                 borderRadius: BorderRadius.circular(20),
                                 child: Image.asset(
-                                  'images/salad2.png',
+                                  'assets/images/salad2.png',
                                   fit: BoxFit.fill,
                                 ),
                               ))

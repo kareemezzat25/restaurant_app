@@ -306,7 +306,7 @@ class _UsersviewState extends State<Usersview> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Image.asset(
-                          "images/nouserfound.jpg",
+                          "assets/images/nouserfound.jpg",
                           width: MediaQuery.of(context).size.width / 2,
                           height: 150,
                         ),
@@ -347,7 +347,8 @@ class _UsersviewState extends State<Usersview> {
                                   backgroundImage: user['imageurl'] != null &&
                                           user['imageurl'].isNotEmpty
                                       ? NetworkImage(user['imageurl'])
-                                      : const AssetImage('images/anonymous.png')
+                                      : const AssetImage(
+                                              'assets/images/anonymous.png')
                                           as ImageProvider,
                                 ),
                                 const SizedBox(width: 16),

@@ -22,7 +22,15 @@ class ShowItemWidget extends StatelessWidget {
       ),
       items: [
         ShowItemButton(
-          imagePath: "images/ice-cream.png",
+          imagePath: "assets/images/All.png",
+          itemName: "All",
+          isSelected: selectedCategory == "",
+          onTap: () {
+            onCategorySelected(""); // Reset filters and show all items
+          },
+        ),
+        ShowItemButton(
+          imagePath: "assets/images/ice-cream.png",
           itemName: "Ice-cream",
           isSelected: selectedCategory == "Ice-cream",
           onTap: () {
@@ -30,7 +38,7 @@ class ShowItemWidget extends StatelessWidget {
           },
         ),
         ShowItemButton(
-          imagePath: "images/burger.png",
+          imagePath: "assets/images/burger.png",
           itemName: "Burger",
           isSelected: selectedCategory == "Burger",
           onTap: () {
@@ -38,7 +46,7 @@ class ShowItemWidget extends StatelessWidget {
           },
         ),
         ShowItemButton(
-          imagePath: "images/pizza.png",
+          imagePath: "assets/images/pizza.png",
           itemName: "Pizza",
           isSelected: selectedCategory == "Pizza",
           onTap: () {
@@ -46,7 +54,7 @@ class ShowItemWidget extends StatelessWidget {
           },
         ),
         ShowItemButton(
-          imagePath: "images/salad.png",
+          imagePath: "assets/images/salad.png",
           itemName: "Salad",
           isSelected: selectedCategory == "Salad",
           onTap: () {
@@ -54,7 +62,7 @@ class ShowItemWidget extends StatelessWidget {
           },
         ),
         ShowItemButton(
-          imagePath: "images/apple-juice.png",
+          imagePath: "assets/images/apple-juice.png",
           itemName: "juices",
           isSelected: selectedCategory == "juices",
           onTap: () {
@@ -62,7 +70,7 @@ class ShowItemWidget extends StatelessWidget {
           },
         ),
         ShowItemButton(
-          imagePath: "images/sandwich.png",
+          imagePath: "assets/images/sandwich.png",
           itemName: "Sandwiches",
           isSelected: selectedCategory == "Sandwiches",
           onTap: () {
@@ -70,7 +78,7 @@ class ShowItemWidget extends StatelessWidget {
           },
         ),
         ShowItemButton(
-          imagePath: "images/breakfast.png",
+          imagePath: "assets/images/breakfast.png",
           itemName: "Breakfast",
           isSelected: selectedCategory == "Breakfast",
           onTap: () {
@@ -78,7 +86,7 @@ class ShowItemWidget extends StatelessWidget {
           },
         ),
         ShowItemButton(
-          imagePath: "images/shawarma.png",
+          imagePath: "assets/images/shawarma.png",
           itemName: "Shawarma",
           isSelected: selectedCategory == "Shawarma",
           onTap: () {
@@ -86,7 +94,7 @@ class ShowItemWidget extends StatelessWidget {
           },
         ),
         ShowItemButton(
-          imagePath: "images/steak.png",
+          imagePath: "assets/images/steak.png",
           itemName: "Steak",
           isSelected: selectedCategory == "Steak",
           onTap: () {
@@ -94,7 +102,7 @@ class ShowItemWidget extends StatelessWidget {
           },
         ),
         ShowItemButton(
-          imagePath: "images/fried-chicken.png",
+          imagePath: "assets/images/fried-chicken.png",
           itemName: "FriedChicken",
           isSelected: selectedCategory == "FriedChicken",
           onTap: () {
@@ -102,7 +110,7 @@ class ShowItemWidget extends StatelessWidget {
           },
         ),
         ShowItemButton(
-          imagePath: "images/spaghetti.png",
+          imagePath: "assets/images/spaghetti.png",
           itemName: "Pastas",
           isSelected: selectedCategory == "Pastas",
           onTap: () {
@@ -110,7 +118,7 @@ class ShowItemWidget extends StatelessWidget {
           },
         ),
         ShowItemButton(
-          imagePath: "images/donut.png",
+          imagePath: "assets/images/donut.png",
           itemName: "Desserts",
           isSelected: selectedCategory == "Desserts",
           onTap: () {
@@ -118,7 +126,7 @@ class ShowItemWidget extends StatelessWidget {
           },
         ),
         ShowItemButton(
-          imagePath: "images/hot-drink.png",
+          imagePath: "assets/images/hot-drink.png",
           itemName: "hot-drink",
           isSelected: selectedCategory == "hot-drink",
           onTap: () {

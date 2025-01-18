@@ -201,7 +201,7 @@ class _ProfileState extends State<Profile> {
                         radius: 70,
                         backgroundImage: userData?['imageurl'] != null
                             ? NetworkImage(userData!['imageurl'])
-                            : const AssetImage('images/anonymous.png')
+                            : const AssetImage('assets/images/anonymous.png')
                                 as ImageProvider,
                       ),
                     ),

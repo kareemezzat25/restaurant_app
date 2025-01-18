@@ -22,6 +22,8 @@ class _OrderState extends State<Order> {
   }
 
   Future<void> fetchCartItems() async {
+    if (!mounted) return;
+
     setState(() {
       isLoading = true;
     });
@@ -35,6 +37,7 @@ class _OrderState extends State<Order> {
           .eq('user_id', user.id);
 
       if (response != null) {
+        if (!mounted) return;
         setState(() {
           cartItems = List<Map<String, dynamic>>.from(response);
 
@@ -285,12 +288,15 @@ class _OrderState extends State<Order> {
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
+            backgroundColor: Colors.green,
             content:
                 Text("Promo code applied! You saved $discountPercentage%")),
       );
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Invalid or used promo code")),
+        const SnackBar(
+            backgroundColor: Colors.red,
+            content: Text("Invalid or used promo code")),
       );
     }
   }
@@ -363,7 +369,9 @@ class _OrderState extends State<Order> {
       });
 
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Checkout successful")),
+        const SnackBar(
+            backgroundColor: Colors.green,
+            content: Text("Checkout successful")),
       );
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -412,7 +420,7 @@ class _OrderState extends State<Order> {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Image.asset('images/empty-cart.png', height: 100),
+                      Image.asset('assets/images/empty-cart.png', height: 100),
                       const SizedBox(height: 10),
                       const Text("Your cart is empty!",
                           style: TextStyle(

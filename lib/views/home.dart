@@ -65,7 +65,7 @@ class _HomeState extends State<HomeView> {
           ? allItems
           : allItems.where((item) => item['category'] == category).toList();
       isSearchFieldVisible =
-          false; // Hide search field when a filter is applied
+          category.isEmpty; // Hide search field when a filter is applied
     });
   }
 
@@ -104,7 +104,7 @@ class _HomeState extends State<HomeView> {
         ),
         centerTitle: true,
         title: const Text(
-          "Fcsu Restaurant",
+          "Fcms Restaurant",
           style: TextStyle(
             fontFamily: "Hurricane",
             color: Colors.white,
@@ -176,7 +176,8 @@ class _HomeState extends State<HomeView> {
                     ? const Center(
                         child: Text(
                           "No items found for this search.",
-                          style: TextStyle(color: Colors.grey),
+                          style: TextStyle(
+                              color: Colors.grey, fontWeight: FontWeight.bold),
                         ),
                       )
                     : ListView.builder(

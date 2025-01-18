@@ -230,7 +230,7 @@ class _LoginState extends State<Login> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Image.asset(
-                          "images/google_logo.png",
+                          "assets/images/google_logo.png",
                           height: 45,
                           width: 45,
                           fit: BoxFit.contain,

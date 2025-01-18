@@ -265,7 +265,8 @@ class _EditProfileViewState extends State<EditProfileView> {
                             : (userData?['imageurl'] != null &&
                                         userData?['imageurl'].isNotEmpty
                                     ? NetworkImage(userData!['imageurl'])
-                                    : const AssetImage('images/anonymous.png'))
+                                    : const AssetImage(
+                                        'assets/images/anonymous.png'))
                                 as ImageProvider,
                         child: const Align(
                           alignment: Alignment.bottomRight,
