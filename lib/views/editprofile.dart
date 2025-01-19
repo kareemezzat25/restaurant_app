@@ -162,28 +162,45 @@ class _EditProfileViewState extends State<EditProfileView> {
 
   Future<void> saveProfile() async {
     try {
-      try {
-        // Query the users table for the entered user_id
-        final response = await supabase
-            .from('users')
-            .select('email')
-            .eq('user_id', userIdController.text)
-            .maybeSingle();
-
-        if (response != null && response['email'] != userData?['email']) {
-          // If a user with the same user_id exists and it's not the current user
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('User ID already exists. Please choose another.'),
+      if (userIdController.text.isEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            backgroundColor: Colors.red,
+            content: Text(
+              'Please Enter your UserId!',
+              style: TextStyle(color: Colors.white),
             ),
+          ),
+        );
+        return;
+      } else {
+        try {
+          // Query the users table for the entered user_id
+          final response = await supabase
+              .from('users')
+              .select('email')
+              .eq('user_id', userIdController.text)
+              .maybeSingle();
+
+          if (response != null && response['email'] != userData?['email']) {
+            // If a user with the same user_id exists and it's not the current user
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                backgroundColor: Colors.red,
+                content: Text(
+                  'User ID already exists. Please choose another.',
+                  style: TextStyle(color: Colors.white),
+                ),
+              ),
+            );
+            return; // Stop further execution
+          }
+        } catch (error) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Error checking User ID: $error')),
           );
           return; // Stop further execution
         }
-      } catch (error) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error checking User ID: $error')),
-        );
-        return; // Stop further execution
       }
 
       final updateData = {
@@ -417,7 +434,7 @@ class _EditProfileViewState extends State<EditProfileView> {
                         onInputValidated: (bool isValid) {
                           if (isValid) {
                             setState(() {
-                              phoneNumber = '+$phoneNumber';
+                              //phoneNumber = '$phoneNumber';
                             });
                           }
                         },

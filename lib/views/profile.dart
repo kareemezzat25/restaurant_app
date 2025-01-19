@@ -94,7 +94,7 @@ class _ProfileState extends State<Profile> {
               style: TextButton.styleFrom(
                 backgroundColor: Colors.red,
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
+                  borderRadius: BorderRadius.circular(18),
                 ),
               ),
               onPressed: () {
@@ -112,7 +112,7 @@ class _ProfileState extends State<Profile> {
               style: TextButton.styleFrom(
                 backgroundColor: Colors.blue,
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
+                  borderRadius: BorderRadius.circular(18),
                 ),
               ),
               onPressed: () {

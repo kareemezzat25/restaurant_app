@@ -4,6 +4,8 @@ import 'package:resturant_app/admin/bottomnavadmin.dart';
 import 'package:resturant_app/service/auth.dart';
 import 'package:resturant_app/views/forgetPassword.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:google_sign_in/google_sign_in.dart';
+
 import 'bottomnav.dart'; // Replace with your BottomNav widget import
 import 'signup.dart'; // Replace with your SignUp page widget import
 
@@ -22,12 +24,72 @@ class _LoginState extends State<Login> {
   final AuthService _authService = AuthService();
 
   final formKey = GlobalKey<FormState>();
-  Future signInWithGoogle() async {
-    await _authService.signInWithGoogle(context);
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => BottomNav()),
-    );
+  final GoogleSignIn _googleSignIn = GoogleSignIn();
+  final supabase = Supabase.instance.client;
+
+  Future<void> signInWithGoogle(BuildContext context) async {
+    try {
+      await _googleSignIn.signOut();
+
+      final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
+      if (googleUser == null) {
+        return;
+      }
+
+      final GoogleSignInAuthentication googleAuth =
+          await googleUser.authentication;
+
+      final response = await supabase
+          .from('users')
+          .select()
+          .eq('email', googleUser.email)
+          .maybeSingle();
+
+      if (response == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text(
+              "This email is not registered. Please signUp first.",
+              style: TextStyle(fontSize: 16),
+            ),
+            backgroundColor: Colors.red,
+          ),
+        );
+
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const SignUp()),
+        );
+      } else {
+        final existingUser = await supabase.auth.signInWithIdToken(
+          provider: OAuthProvider.google,
+          idToken: googleAuth.idToken!,
+        );
+
+        if (existingUser.session != null) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text(
+                "Login successful!",
+                style: TextStyle(fontSize: 16),
+              ),
+              backgroundColor: Colors.green,
+            ),
+          );
+
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => BottomNav()),
+          );
+        } else {
+          throw Exception("Failed to sign in.");
+        }
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Error during Google sign-in: $e")),
+      );
+    }
   }
 
   // Email/Password Login
@@ -238,12 +300,7 @@ class _LoginState extends State<Login> {
                         const SizedBox(width: 10),
                         GestureDetector(
                           onTap: () async {
-                            await _authService.signInWithGoogle(context);
-                            Navigator.pushReplacement(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => BottomNav()),
-                            );
+                            signInWithGoogle(context);
                           },
                           child: const Text(
                             'Sign In with Google',

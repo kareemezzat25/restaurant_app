@@ -275,13 +275,13 @@ class _UsersviewState extends State<Usersview> {
       child: Scaffold(
         backgroundColor: Colors.white,
         appBar: AppBar(
-          backgroundColor: Colors.transparent,
+          backgroundColor: Color(0xff2C9CEE),
           elevation: 0,
           automaticallyImplyLeading: false,
           title: const Text(
             'Users',
             style: TextStyle(
-              color: Colors.black,
+              color: Colors.white,
               fontSize: 24,
               fontWeight: FontWeight.bold,
             ),
@@ -291,7 +291,7 @@ class _UsersviewState extends State<Usersview> {
             IconButton(
               icon: const Icon(
                 Icons.search,
-                color: Colors.black,
+                color: Colors.white,
                 size: 28,
               ),
               onPressed: showFilterSheet,
@@ -331,10 +331,14 @@ class _UsersviewState extends State<Usersview> {
                           );
                         })),
                         child: Card(
-                          color: const Color.fromARGB(255, 217, 233, 242),
-                          elevation: 10,
-                          margin: const EdgeInsets.symmetric(vertical: 8.0),
+                          color: Colors.white,
+                          elevation: 6,
+                          margin: const EdgeInsets.symmetric(
+                              vertical: 8.0, horizontal: 8),
                           shape: RoundedRectangleBorder(
+                            side: BorderSide(
+                                color: Colors.blueAccent.withOpacity(0.3),
+                                width: 2),
                             borderRadius: BorderRadius.circular(12),
                           ),
                           child: Padding(
@@ -367,9 +371,8 @@ class _UsersviewState extends State<Usersview> {
                                       const SizedBox(height: 4),
                                       Text(
                                         user['email'] ?? 'No email provided',
-                                        style: const TextStyle(
-                                          color: Colors.grey,
-                                        ),
+                                        style:
+                                            TextStyle(color: Color(0xff2C9CEE)),
                                       ),
                                       const SizedBox(height: 4),
                                       Text(

@@ -14,6 +14,7 @@ class _OrderState extends State<Order> {
   bool isLoading = true;
   TextEditingController discountController = TextEditingController();
   bool isInvalidCode = false;
+  bool applypromocode = false;
 
   @override
   void initState() {
@@ -89,7 +90,10 @@ class _OrderState extends State<Order> {
 
       if (walletBalance < total) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Insufficient wallet balance")),
+          SnackBar(
+              backgroundColor: Colors.red[50],
+              content: Text("Insufficient wallet balance",
+                  style: TextStyle(color: Colors.red))),
         );
         return;
       }
@@ -212,6 +216,7 @@ class _OrderState extends State<Order> {
                                   });
                                   return;
                                 }
+                                applypromocode = true;
                                 await applyPromoCode(
                                     discountCode, discountController);
                               }
@@ -367,12 +372,12 @@ class _OrderState extends State<Order> {
         cartItems.clear();
         total = 0.0;
       });
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-            backgroundColor: Colors.green,
-            content: Text("Checkout successful")),
-      );
+      if (!applypromocode)
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+              backgroundColor: Colors.green,
+              content: Text("Checkout successful")),
+        );
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text("Error: $e")),

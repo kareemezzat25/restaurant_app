@@ -42,6 +42,7 @@ class _DiscountCodesPageState extends State<DiscountCodesPage> {
           .from('discount_codes')
           .select()
           .eq('user_id', widget.userId)
+          .order('is_used', ascending: true)
           .order('created_at', ascending: false)
           .range(currentPage * pageSize, (currentPage + 1) * pageSize - 1);
 

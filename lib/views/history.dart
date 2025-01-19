@@ -153,13 +153,13 @@ class _HistoryState extends State<History> {
           builder: (context, setState) {
             return AlertDialog(
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(16),
+                borderRadius: BorderRadius.circular(18),
               ),
               backgroundColor: Colors.white,
               title: Text(
                 'Add Discount Code for ${user['username']}',
-                style: TextStyle(
-                  fontSize: 20,
+                style: const TextStyle(
+                  fontSize: 18,
                   fontWeight: FontWeight.bold,
                   color: Colors.black87,
                 ),
@@ -183,14 +183,15 @@ class _HistoryState extends State<History> {
                     decoration: InputDecoration(
                       labelText: 'Discount Percentage',
                       hintText: 'Enter discount percentage',
-                      labelStyle: TextStyle(color: Colors.blueGrey),
-                      hintStyle: TextStyle(color: Colors.grey),
+                      labelStyle: const TextStyle(color: Colors.blueGrey),
+                      hintStyle: const TextStyle(color: Colors.grey),
                       border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
+                        borderRadius: BorderRadius.circular(18),
                       ),
                       focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide: BorderSide(color: Colors.blue, width: 2),
+                        borderRadius: BorderRadius.circular(18),
+                        borderSide:
+                            const BorderSide(color: Colors.blue, width: 1),
                       ),
                     ),
                   ),
@@ -199,7 +200,7 @@ class _HistoryState extends State<History> {
                       padding: const EdgeInsets.only(top: 4.0),
                       child: Text(
                         errorText!,
-                        style: TextStyle(color: Colors.red, fontSize: 12),
+                        style: const TextStyle(color: Colors.red, fontSize: 12),
                         overflow: TextOverflow
                             .visible, // Ensure full message is visible
                       ),
@@ -211,10 +212,16 @@ class _HistoryState extends State<History> {
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
                     TextButton(
+                      style: TextButton.styleFrom(
+                          backgroundColor: Colors.red,
+                          padding: const EdgeInsets.symmetric(
+                              vertical: 12, horizontal: 18),
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(18))),
                       onPressed: () => Navigator.pop(context),
-                      child: Text(
+                      child: const Text(
                         'Cancel',
-                        style: TextStyle(color: Colors.red),
+                        style: TextStyle(color: Colors.white),
                       ),
                     ),
                     ElevatedButton(
@@ -276,19 +283,17 @@ class _HistoryState extends State<History> {
                           }
                         }
                       },
-                      child: Text(
+                      child: const Text(
                         'Add',
                         style: TextStyle(
                           color: Colors.white,
-                          fontWeight: FontWeight.bold,
                         ),
                       ),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.blue,
-                        padding:
-                            EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                        padding: const EdgeInsets.all(12),
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
+                          borderRadius: BorderRadius.circular(18),
                         ),
                       ),
                     ),
@@ -319,12 +324,12 @@ class _HistoryState extends State<History> {
             return AlertDialog(
               backgroundColor: Colors.white,
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(16),
+                borderRadius: BorderRadius.circular(18),
               ),
               title: Text(
                 'Enter Amount for ${user['username'] ?? 'User'}',
                 style:
-                    const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                    const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
               content: Column(
                 mainAxisSize: MainAxisSize.min,
@@ -344,16 +349,16 @@ class _HistoryState extends State<History> {
                     },
                     decoration: InputDecoration(
                       labelText: 'Amount',
-                      labelStyle: TextStyle(color: Colors.blueGrey),
-                      hintStyle: TextStyle(color: Colors.grey),
+                      labelStyle: const TextStyle(color: Colors.blueGrey),
+                      hintStyle: const TextStyle(color: Colors.grey),
                       hintText: 'Enter Amount',
                       border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
+                        borderRadius: BorderRadius.circular(18),
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderSide:
-                            const BorderSide(color: Colors.blueGrey, width: 1),
-                        borderRadius: BorderRadius.circular(12),
+                            const BorderSide(color: Colors.blue, width: 1),
+                        borderRadius: BorderRadius.circular(18),
                       ),
                     ),
                   ),
@@ -362,27 +367,29 @@ class _HistoryState extends State<History> {
                       padding: const EdgeInsets.only(top: 4.0),
                       child: Text(
                         errorText!,
-                        style: TextStyle(color: Colors.red, fontSize: 12),
+                        style: const TextStyle(color: Colors.red, fontSize: 12),
                         overflow: TextOverflow
                             .visible, // Ensure full message is visible
                       ),
                     ),
                 ],
               ),
-              actionsAlignment: MainAxisAlignment.center,
+              actionsAlignment: MainAxisAlignment.spaceEvenly,
               actions: [
                 TextButton(
                   onPressed: () => Navigator.pop(context),
                   style: TextButton.styleFrom(
                     foregroundColor: Colors.white,
                     backgroundColor: Colors.red,
+                    padding: const EdgeInsets.symmetric(
+                        vertical: 12, horizontal: 18),
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
+                      borderRadius: BorderRadius.circular(18),
                     ),
                   ),
                   child: const Text(
                     'Cancel',
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                    style: TextStyle(fontWeight: FontWeight.bold),
                   ),
                 ),
                 ElevatedButton(
@@ -432,13 +439,14 @@ class _HistoryState extends State<History> {
                   style: ElevatedButton.styleFrom(
                     foregroundColor: Colors.white,
                     backgroundColor: Colors.blue,
+                    padding: const EdgeInsets.all(12),
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
+                      borderRadius: BorderRadius.circular(18),
                     ),
                   ),
                   child: const Text(
                     'Add',
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                    style: TextStyle(fontWeight: FontWeight.bold),
                   ),
                 ),
               ],
@@ -501,11 +509,13 @@ class _HistoryState extends State<History> {
                             final item = historyItems[index];
                             return Card(
                               elevation: 6,
+
                               // Card elevation
                               margin: const EdgeInsets.symmetric(vertical: 10),
                               shape: RoundedRectangleBorder(
                                 side: BorderSide(
-                                    color: Color(0xFFFF8966).withOpacity(0.3),
+                                    color: const Color(0xFFFF8966)
+                                        .withOpacity(0.3),
                                     width: 1),
                                 borderRadius: BorderRadius.circular(12),
                               ),
@@ -587,7 +597,7 @@ class _HistoryState extends State<History> {
                             Expanded(
                               child: ElevatedButton(
                                 style: ElevatedButton.styleFrom(
-                                  backgroundColor: Color(0xFFFF6E73),
+                                  backgroundColor: const Color(0xFFFF6E73),
                                   padding: const EdgeInsets.symmetric(
                                       vertical: 16, horizontal: 16),
                                   shape: RoundedRectangleBorder(
@@ -619,7 +629,7 @@ class _HistoryState extends State<History> {
                                         fontWeight: FontWeight.w500)),
                               ),
                             ),
-                            SizedBox(
+                            const SizedBox(
                               width: 5,
                             ),
                             Expanded(
@@ -643,7 +653,7 @@ class _HistoryState extends State<History> {
                                   }
                                 },
                                 style: ElevatedButton.styleFrom(
-                                  backgroundColor: Color(0xFFFF6E73),
+                                  backgroundColor: const Color(0xFFFF6E73),
                                   padding: const EdgeInsets.symmetric(
                                       vertical: 16, horizontal: 16),
                                   shape: RoundedRectangleBorder(
