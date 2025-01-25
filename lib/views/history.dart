@@ -461,6 +461,15 @@ class _HistoryState extends State<History> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        leading: userRole == "admin"
+            ? IconButton(
+                icon: const Icon(Icons.arrow_back, color: Colors.white),
+                onPressed: () {
+                  Navigator.pop(context); // Navigate back
+                },
+              )
+            : null,
+
         elevation: 0,
         flexibleSpace: Container(
           decoration: const BoxDecoration(
