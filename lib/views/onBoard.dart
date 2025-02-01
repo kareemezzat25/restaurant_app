@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:introduction_screen/introduction_screen.dart';
+import 'package:resturant_app/cache/cache.dart';
 import 'package:resturant_app/views/signup.dart';
 
 class OnboardingScreen extends StatelessWidget {
@@ -23,36 +24,37 @@ class OnboardingScreen extends StatelessWidget {
     return IntroductionScreen(
       globalBackgroundColor: Colors.white,
       dotsDecorator: DotsDecorator(
-          color: Color(0xFF707070),
-          activeColor: Color(0xFFFF6E73),
-          activeSize: Size(10, 10),
+          color: const Color(0xFF707070),
+          activeColor: const Color(0xFFFF6E73),
+          activeSize: const Size(10, 10),
           activeShape:
               RoundedRectangleBorder(borderRadius: BorderRadius.circular(28))),
       showNextButton: true,
       showDoneButton: true,
       showBackButton: true,
-      back: Text(
+      back: const Text(
         "Back",
         style: TextStyle(
             fontSize: 18,
             color: Color(0xFFFF6E73),
             fontWeight: FontWeight.bold),
       ),
-      next: Text(
+      next: const Text(
         "Next",
         style: TextStyle(
             fontSize: 18,
             color: Color(0xFFFF6E73),
             fontWeight: FontWeight.bold),
       ),
-      done: Text("Finish",
+      done: const Text("Finish",
           style: TextStyle(
               fontSize: 18,
               color: Color(0xFFFF6E73),
               fontWeight: FontWeight.bold)),
       onDone: () {
+        Cache.saveElgibilty();
         Navigator.push(
-            context, MaterialPageRoute(builder: (context) => SignUp()));
+            context, MaterialPageRoute(builder: (context) => const SignUp()));
       },
       pages: [
         PageViewModel(

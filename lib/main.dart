@@ -1,14 +1,17 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_stripe/flutter_stripe.dart';
+import 'package:resturant_app/cache/cache.dart';
 import 'package:resturant_app/firebase_options.dart';
 import 'package:resturant_app/views/onBoard.dart';
+import 'package:resturant_app/views/signup.dart';
 import 'package:resturant_app/widgets/app_constant.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 void main() async {
   // Ensure Flutter bindings are initialized
   WidgetsFlutterBinding.ensureInitialized();
+  await Cache.init();
   Stripe.publishableKey = publishablekey;
   try {
     await Firebase.initializeApp(
@@ -29,7 +32,7 @@ void main() async {
   // Replace with your Supabase URL
 
   // Run the app
-  runApp(MyApp());
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
@@ -39,7 +42,9 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: OnboardingScreen(), // Directly open AdminLogin
+      home: Cache.getEligibilty() == true
+          ? const SignUp()
+          : OnboardingScreen(), // Directly open AdminLogin
     );
   }
 }
